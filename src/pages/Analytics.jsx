@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, BarChart3, Trophy, Users, Star } from 'lucide-react';
-import { motion } from 'framer-motion';
 import {
   BarChart,
   Bar,
@@ -22,9 +21,11 @@ const CHART_COLORS = ['#ff6b35', '#00f3ff', '#fbbf24', '#10b981', '#ef4444', '#3
 export function Analytics() {
   const [topAnime, setTopAnime] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     document.title = 'MIRU — Analytics & Charts';
+    setVisible(true);
   }, []);
 
   useEffect(() => {
@@ -111,14 +112,10 @@ export function Analytics() {
   };
 
   return (
-    <div className="min-h-screen pt-20 pb-12">
+    <div className={`min-h-screen pt-20 pb-12 page-fade ${visible ? 'visible' : ''}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
+        <div className="mb-8 animate-fade-up" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-sm text-[#9090a8] hover:text-[#ff6b35] transition-colors mb-4"
@@ -135,7 +132,7 @@ export function Analytics() {
               <p className="text-xs text-[#5a5a72]">Global anime statistics & insights</p>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -147,11 +144,9 @@ export function Analytics() {
           <>
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-[#13131a] rounded-xl p-5 border border-white/5"
+              <div
+                className="bg-[#13131a] rounded-xl p-5 border border-white/5 animate-fade-up"
+                style={{ animationDelay: '150ms', animationFillMode: 'forwards' }}
               >
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 rounded-lg bg-[#ff6b35]/10">
@@ -160,13 +155,11 @@ export function Analytics() {
                   <span className="text-xs text-[#9090a8] uppercase tracking-wider font-medium font-display">Top Rated</span>
                 </div>
                 <p className="text-3xl font-bold text-white">{topAnime.length}</p>
-              </motion.div>
+              </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-[#13131a] rounded-xl p-5 border border-white/5"
+              <div
+                className="bg-[#13131a] rounded-xl p-5 border border-white/5 animate-fade-up"
+                style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}
               >
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 rounded-lg bg-[#fbbf24]/10">
@@ -175,13 +168,11 @@ export function Analytics() {
                   <span className="text-xs text-[#9090a8] uppercase tracking-wider font-medium font-display">Avg Score</span>
                 </div>
                 <p className="text-3xl font-bold text-white">{avgScore}</p>
-              </motion.div>
+              </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="bg-[#13131a] rounded-xl p-5 border border-white/5"
+              <div
+                className="bg-[#13131a] rounded-xl p-5 border border-white/5 animate-fade-up"
+                style={{ animationDelay: '250ms', animationFillMode: 'forwards' }}
               >
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 rounded-lg bg-[#00f3ff]/10">
@@ -190,17 +181,15 @@ export function Analytics() {
                   <span className="text-xs text-[#9090a8] uppercase tracking-wider font-medium font-display">Total Episodes</span>
                 </div>
                 <p className="text-3xl font-bold text-white">{totalEpisodes}</p>
-              </motion.div>
+              </div>
             </div>
 
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               {/* Top by Score */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="bg-[#13131a] rounded-xl p-5 border border-white/5"
+              <div
+                className="bg-[#13131a] rounded-xl p-5 border border-white/5 animate-fade-up"
+                style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}
               >
                 <div className="flex items-center gap-2 mb-4">
                   <Trophy size={16} className="text-[#fbbf24]" />
@@ -217,14 +206,12 @@ export function Analytics() {
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Top by Popularity */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="bg-[#13131a] rounded-xl p-5 border border-white/5"
+              <div
+                className="bg-[#13131a] rounded-xl p-5 border border-white/5 animate-fade-up"
+                style={{ animationDelay: '350ms', animationFillMode: 'forwards' }}
               >
                 <div className="flex items-center gap-2 mb-4">
                   <Users size={16} className="text-[#00f3ff]" />
@@ -241,15 +228,13 @@ export function Analytics() {
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
-              </motion.div>
+              </div>
             </div>
 
             {/* Genre Distribution */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="bg-[#13131a] rounded-xl p-5 border border-white/5 mb-8"
+            <div
+              className="bg-[#13131a] rounded-xl p-5 border border-white/5 mb-8 animate-fade-up"
+              style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}
             >
               <div className="flex items-center gap-2 mb-4">
                 <BarChart3 size={16} className="text-[#ff6b35]" />
@@ -289,7 +274,7 @@ export function Analytics() {
                   <p className="text-sm text-[#5a5a72]">No genre statistics available</p>
                 </div>
               )}
-            </motion.div>
+            </div>
           </>
         )}
       </div>

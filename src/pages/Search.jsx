@@ -126,6 +126,7 @@ export function Search() {
   };
 
   const showClearButton = query || selectedGenre || type !== 'all' || status !== 'all' || score !== 'any' || orderBy !== 'relevance';
+  const uniqueResults = Array.from(new Map(results.map(a => [a.mal_id, a])).entries()).map(([, v]) => v);
 
   return (
     <div className="min-h-screen pt-20 pb-12">
@@ -334,7 +335,7 @@ export function Search() {
                 description={`We couldn't find any anime matching "${query}". Try a different search term or genre.`}
               />
             </motion.div>
-          ) : results.length > 0 ? (
+          ) : uniqueResults.length > 0 ? (
             <motion.div
               key="results"
               initial={{ opacity: 0 }}
@@ -343,11 +344,11 @@ export function Search() {
             >
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm text-[#9090a8]">
-                  {results.length} result{results.length !== 1 ? 's' : ''} found
+                  {uniqueResults.length} result{uniqueResults.length !== 1 ? 's' : ''} found
                 </span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {results.map((anime, i) => (
+                {uniqueResults.map((anime, i) => (
                   <AnimeCard key={anime.mal_id} anime={anime} index={i} />
                 ))}
               </div>

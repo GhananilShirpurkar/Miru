@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Play } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 const getGenreColor = (name) => {
   if (!name) return 'border-white/10 text-white/60';
@@ -13,7 +12,7 @@ const getGenreColor = (name) => {
   return 'border-white/10 text-white/60 bg-white/5';
 };
 
-export function AnimeCard({ anime, rank, index = 0 }) {
+export default function AnimeCard({ anime, rank, index = 0 }) {
   const [imgLoaded, setImgLoaded] = useState(false);
 
   if (!anime) return null;
@@ -21,15 +20,15 @@ export function AnimeCard({ anime, rank, index = 0 }) {
   const poster = anime.images?.webp?.large_image_url || anime.images?.jpg?.large_image_url || '';
   const displayTitle = anime.title_english || anime.title;
   const score = anime.score || 0;
+  const delay = Math.min(index * 50, 400);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
+    <div
+      className="animate-fade-up"
+      style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}
     >
       <Link to={`/anime/${anime.mal_id}`} className="group block">
-        <div className="relative bg-[#13131a] rounded-xl overflow-hidden card-glow transition-all duration-300 hover:-translate-y-1 border border-white/5 hover:border-[#ff6b35]/30">
+        <div className="relative bg-[#13131a] rounded-xl overflow-hidden card-glow transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 border border-white/5 hover:border-[#ff6b35]/30">
           {/* Poster Image */}
           <div className="relative aspect-[3/4] overflow-hidden">
             {!imgLoaded && (
@@ -38,7 +37,7 @@ export function AnimeCard({ anime, rank, index = 0 }) {
             <img
               src={poster}
               alt={displayTitle}
-              className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${
+              className={`w-full h-full object-cover transition-transform duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-105 ${
                 imgLoaded ? 'opacity-100' : 'opacity-0'
               }`}
               onLoad={() => setImgLoaded(true)}
@@ -58,8 +57,6 @@ export function AnimeCard({ anime, rank, index = 0 }) {
                 </div>
               </div>
             )}
-
-
 
             {/* Play Button on hover */}
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -105,8 +102,6 @@ export function AnimeCard({ anime, rank, index = 0 }) {
           </div>
         </div>
       </Link>
-    </motion.div>
+    </div>
   );
 }
-
-export default AnimeCard;

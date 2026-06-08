@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home as HomeIcon, Search as SearchIcon, Calendar, Menu, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export function Navbar() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mountedLink, setMountedLink] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    setMountedLink(false);
+    const timer = setTimeout(() => {
+      setMountedLink(true);
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   const navItems = [
     { path: '/', label: 'Home', icon: HomeIcon },
@@ -24,10 +32,10 @@ export function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 navbar-glass ${
         scrolled
-          ? 'bg-[#0a0a0f]/90 backdrop-blur-xl border-b border-white/5'
-          : 'bg-transparent'
+          ? 'bg-[#0a0a0f]/90 backdrop-blur-[12px] border-b border-white/10'
+          : 'bg-[#0a0a0f]/40 backdrop-blur-[6px] border-b border-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,7 +45,7 @@ export function Navbar() {
             <span className="font-display text-2xl tracking-wider text-[#ff6b35] group-hover:scale-105 transition-transform uppercase italic">
               MIRU
             </span>
-            <div className="w-2 h-2 rounded-full bg-[#7c3aed] animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-[#00f3ff] animate-pulse" />
           </Link>
 
           {/* Desktop Nav */}
@@ -58,10 +66,9 @@ export function Navbar() {
                   <Icon size={16} />
                   <span>{item.label}</span>
                   {active && (
-                    <motion.div
-                      layoutId="nav-underline"
-                      className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#ff6b35] rounded-full"
-                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    <div
+                      className="absolute bottom-0 left-4 h-0.5 bg-[#ff6b35] rounded-full transition-all duration-300"
+                      style={{ width: mountedLink ? 'calc(100% - 32px)' : '0px' }}
                     />
                   )}
                 </Link>
@@ -93,50 +100,45 @@ export function Navbar() {
       </div>
 
       {/* Mobile Menu */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-[#0a0a0f]/95 backdrop-blur-xl border-b border-white/5 overflow-hidden"
-          >
-            <div className="px-4 py-3 space-y-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item.path);
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                      active
-                        ? 'bg-[#ff6b35]/10 text-[#ff6b35]'
-                        : 'text-[#9090a8] hover:text-[#f0f0f5] hover:bg-white/5'
-                    }`}
-                  >
-                    <Icon size={18} />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
+      <div
+        className={`md:hidden bg-[#0a0a0f]/95 backdrop-blur-xl border-b border-white/5 overflow-hidden transition-all duration-300 ease-in-out ${
+          mobileOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="px-4 py-3 space-y-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.path);
+            return (
               <Link
-                to="/analytics"
+                key={item.path}
+                to={item.path}
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                  isActive('/analytics')
+                  active
                     ? 'bg-[#ff6b35]/10 text-[#ff6b35]'
                     : 'text-[#9090a8] hover:text-[#f0f0f5] hover:bg-white/5'
                 }`}
               >
-                <span className="w-[18px] h-[18px] flex items-center justify-center text-xs">&#128202;</span>
-                <span>Analytics</span>
+                <Icon size={18} />
+                <span>{item.label}</span>
               </Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            );
+          })}
+          <Link
+            to="/analytics"
+            onClick={() => setMobileOpen(false)}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+              isActive('/analytics')
+                ? 'bg-[#ff6b35]/10 text-[#ff6b35]'
+                : 'text-[#9090a8] hover:text-[#f0f0f5] hover:bg-white/5'
+            }`}
+          >
+            <span className="w-[18px] h-[18px] flex items-center justify-center text-xs">&#128202;</span>
+            <span>Analytics</span>
+          </Link>
+        </div>
+      </div>
     </nav>
   );
 }

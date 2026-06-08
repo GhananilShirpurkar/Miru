@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, Info, Star, TrendingUp, Calendar } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 const getGenreColor = (name) => {
   if (!name) return 'border-white/10 text-white/60';
@@ -24,18 +23,18 @@ export function HeroSection({ anime }) {
   return (
     <div className="relative w-full min-h-[500px] md:min-h-[600px] overflow-hidden rounded-2xl mb-8 border border-white/5">
       {/* Background Image */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 overflow-hidden">
         {!imgLoaded && <div className="absolute inset-0 shimmer bg-[#1a1a24]" />}
         <img
           src={poster}
           alt={displayTitle}
           className={`w-full h-full object-cover object-top transition-opacity duration-700 ${
-            imgLoaded ? 'opacity-100' : 'opacity-0'
+            imgLoaded ? 'opacity-100 animate-ken-burns' : 'opacity-0'
           }`}
           onLoad={() => setImgLoaded(true)}
         />
         {/* Dark overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0f] via-[#0a0a0f]/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0f] via-[#0a0a0f]/90 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-transparent to-[#0a0a0f]/30" />
       </div>
 
@@ -53,11 +52,9 @@ export function HeroSection({ anime }) {
       <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-24 pb-12 flex items-end min-h-[500px] md:min-h-[600px]">
         <div className="max-w-2xl">
           {/* Rank Badge */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex items-center gap-3 mb-4"
+          <div
+            className="flex items-center gap-3 mb-4 animate-fade-up"
+            style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
           >
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#ff6b35]/15 border border-[#ff6b35]/30">
               <TrendingUp size={14} className="text-[#ff6b35]" />
@@ -69,37 +66,34 @@ export function HeroSection({ anime }) {
                 <span className="text-xs font-bold text-[#fbbf24]">Rank #{anime.rank}</span>
               </div>
             )}
-          </motion.div>
+          </div>
 
           {/* Title */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="font-display text-4xl md:text-6xl lg:text-7xl text-white leading-none tracking-wide mb-3 uppercase"
-            style={{ textShadow: '0 4px 30px rgba(0,0,0,0.5)' }}
+          <h1
+            className="font-display text-4xl md:text-6xl lg:text-7xl text-white leading-none tracking-wide mb-3 uppercase animate-fade-up"
+            style={{
+              textShadow: '0 4px 30px rgba(0,0,0,0.5)',
+              animationDelay: '200ms',
+              animationFillMode: 'forwards',
+            }}
           >
             {displayTitle}
-          </motion.h1>
+          </h1>
 
           {/* Japanese Title */}
           {anime.title_japanese && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-sm text-[#9090a8] mb-4 font-medium"
+            <p
+              className="text-sm text-[#9090a8] mb-4 font-medium animate-fade-up"
+              style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}
             >
               {anime.title_japanese}
-            </motion.p>
+            </p>
           )}
 
           {/* Meta Info */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.25 }}
-            className="flex flex-wrap items-center gap-4 mb-5"
+          <div
+            className="flex flex-wrap items-center gap-4 mb-5 animate-fade-up"
+            style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}
           >
             <div className="flex items-center gap-1.5">
               <Star size={16} className="text-[#fbbf24] fill-[#fbbf24]" />
@@ -112,14 +106,12 @@ export function HeroSection({ anime }) {
             </div>
             <div className="w-1 h-1 rounded-full bg-[#5a5a72]" />
             <span className="text-sm text-[#9090a8]">{anime.episodes ? `${anime.episodes} Episodes` : 'TBA'}</span>
-          </motion.div>
+          </div>
 
           {/* Genres */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-wrap gap-2 mb-6"
+          <div
+            className="flex flex-wrap gap-2 mb-6 animate-fade-up"
+            style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}
           >
             {anime.genres && anime.genres.slice(0, 4).map((genre) => (
               <span
@@ -129,24 +121,20 @@ export function HeroSection({ anime }) {
                 {genre.name}
               </span>
             ))}
-          </motion.div>
+          </div>
 
           {/* Synopsis */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.35 }}
-            className="text-sm text-[#9090a8] leading-relaxed mb-6 line-clamp-3 max-w-xl"
+          <p
+            className="text-sm text-[#9090a8] leading-relaxed mb-6 line-clamp-3 max-w-xl animate-fade-up"
+            style={{ animationDelay: '600ms', animationFillMode: 'forwards' }}
           >
             {anime.synopsis || 'No synopsis available.'}
-          </motion.p>
+          </p>
 
           {/* CTAs */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex flex-wrap gap-3"
+          <div
+            className="flex flex-wrap gap-3 animate-fade-up"
+            style={{ animationDelay: '700ms', animationFillMode: 'forwards' }}
           >
             <Link
               to={`/anime/${anime.mal_id}`}
@@ -162,7 +150,7 @@ export function HeroSection({ anime }) {
               <Info size={18} />
               View Details
             </Link>
-          </motion.div>
+          </div>
         </div>
       </div>
 

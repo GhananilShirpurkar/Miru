@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, ArrowLeft, Clock, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { getCurrentSeasonalAnime } from '../lib/api';
 import AnimeCard from '../components/AnimeCard';
 import SkeletonCard from '../components/SkeletonCard';
@@ -11,9 +10,11 @@ export function Seasonal() {
   const [anime, setAnime] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     document.title = 'MIRU — Seasonal Anime';
+    setVisible(true);
   }, []);
 
   useEffect(() => {
@@ -38,15 +39,13 @@ export function Seasonal() {
   else if (month >= 5 && month <= 7) season = 'Summer';
   else if (month >= 8 && month <= 10) season = 'Fall';
 
+  const uniqueAnime = Array.from(new Map(anime.map(a => [a.mal_id, a])).entries()).map(([, v]) => v);
+
   return (
-    <div className="min-h-screen pt-20 pb-12">
+    <div className={`min-h-screen pt-20 pb-12 page-fade ${visible ? 'visible' : ''}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
+        <div className="mb-8 animate-fade-up" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-sm text-[#9090a8] hover:text-[#ff6b35] transition-colors mb-4"
@@ -71,7 +70,7 @@ export function Seasonal() {
               <span>{anime.length} shows airing</span>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Content */}
         {loading ? (
@@ -86,9 +85,9 @@ export function Seasonal() {
             title="Error"
             description={error}
           />
-        ) : anime.length > 0 ? (
+        ) : uniqueAnime.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {anime.map((a, i) => (
+            {uniqueAnime.map((a, i) => (
               <AnimeCard key={a.mal_id} anime={a} index={i} />
             ))}
           </div>

@@ -7,7 +7,7 @@ import ScoreDisplay from '../components/ScoreDisplay';
 import AnimeCard from '../components/AnimeCard';
 import EmptyState from '../components/EmptyState';
 
-export function AnimeDetail() {
+export default function AnimeDetail() {
   const { id } = useParams();
   const [anime, setAnime] = useState(null);
   const [related, setRelated] = useState([]);
@@ -81,6 +81,7 @@ export function AnimeDetail() {
 
   const poster = anime.images?.webp?.large_image_url || anime.images?.jpg?.large_image_url || '';
   const displayTitle = anime.title_english || anime.title;
+  const uniqueRelated = Array.from(new Map(related.map(a => [a.mal_id, a])).entries()).map(([, v]) => v);
 
   return (
     <div className="min-h-screen">
@@ -124,98 +125,96 @@ export function AnimeDetail() {
                 <img
                   src={poster}
                   alt={displayTitle}
-                  className={`w-full aspect-[3/4] object-cover transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  className={`w-full aspect-[3/4] object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
                   onLoad={() => setImgLoaded(true)}
                 />
               </div>
-
-
             </motion.div>
 
-            {/* Info */}
+            {/* Info details */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
               className="flex-1"
             >
-              {/* Title */}
-              <h1 className="font-display text-3xl md:text-5xl text-white leading-tight tracking-wide mb-2 uppercase">
+              <h1 className="font-display text-3xl md:text-5xl text-white tracking-wide mb-2 uppercase font-bold">
                 {displayTitle}
               </h1>
               {anime.title_japanese && (
-                <p className="text-sm text-[#9090a8] mb-4 font-medium">
-                  {anime.title_japanese}
-                </p>
+                <p className="text-sm text-[#9090a8] mb-6 font-medium">{anime.title_japanese}</p>
               )}
 
-              {/* Score */}
-              <div className="mb-6">
-                <ScoreDisplay score={anime.score} size="lg" />
-              </div>
-
               {/* Stats Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                <div className="bg-[#13131a] rounded-xl p-3 border border-white/5">
-                  <div className="flex items-center gap-1.5 text-[#5a5a72] text-xs mb-1">
-                    <Star size={12} />
-                    Rank
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+                <div className="p-4 rounded-xl bg-[#13131a] border border-white/5 flex flex-col">
+                  <span className="text-[10px] text-[#5a5a72] uppercase tracking-wider font-semibold mb-1">Score</span>
+                  <div className="flex items-center gap-1.5">
+                    <Star size={16} className="text-[#fbbf24] fill-[#fbbf24]" />
+                    <span className="text-lg font-bold text-white">
+                      {anime.score ? anime.score.toFixed(2) : 'N/A'}
+                    </span>
                   </div>
-                  <span className="text-lg font-bold text-white">#{anime.rank || 'N/A'}</span>
+                  {anime.scored_by && (
+                    <span className="text-[10px] text-[#5a5a72] mt-0.5">{anime.scored_by.toLocaleString()} users</span>
+                  )}
                 </div>
-                <div className="bg-[#13131a] rounded-xl p-3 border border-white/5">
-                  <div className="flex items-center gap-1.5 text-[#5a5a72] text-xs mb-1">
-                    <Users size={12} />
-                    Popularity
-                  </div>
-                  <span className="text-lg font-bold text-white">#{anime.popularity || 'N/A'}</span>
+
+                <div className="p-4 rounded-xl bg-[#13131a] border border-white/5 flex flex-col">
+                  <span className="text-[10px] text-[#5a5a72] uppercase tracking-wider font-semibold mb-1">Rank</span>
+                  <span className="text-lg font-bold text-white">
+                    {anime.rank ? `#${anime.rank}` : 'N/A'}
+                  </span>
                 </div>
-                <div className="bg-[#13131a] rounded-xl p-3 border border-white/5">
-                  <div className="flex items-center gap-1.5 text-[#5a5a72] text-xs mb-1">
-                    <Play size={12} />
-                    Episodes
-                  </div>
-                  <span className="text-lg font-bold text-white">{anime.episodes || 'TBA'}</span>
+
+                <div className="p-4 rounded-xl bg-[#13131a] border border-white/5 flex flex-col">
+                  <span className="text-[10px] text-[#5a5a72] uppercase tracking-wider font-semibold mb-1">Popularity</span>
+                  <span className="text-lg font-bold text-white">
+                    {anime.popularity ? `#${anime.popularity}` : 'N/A'}
+                  </span>
                 </div>
-                <div className="bg-[#13131a] rounded-xl p-3 border border-white/5">
-                  <div className="flex items-center gap-1.5 text-[#5a5a72] text-xs mb-1">
-                    <Calendar size={12} />
-                    Status
-                  </div>
-                  <span className="text-sm font-bold text-white">{anime.status}</span>
+
+                <div className="p-4 rounded-xl bg-[#13131a] border border-white/5 flex flex-col">
+                  <span className="text-[10px] text-[#5a5a72] uppercase tracking-wider font-semibold mb-1">Episodes</span>
+                  <span className="text-lg font-bold text-white">
+                    {anime.episodes || 'TBA'}
+                  </span>
+                  {anime.duration && (
+                    <span className="text-[10px] text-[#5a5a72] mt-0.5">{anime.duration}</span>
+                  )}
                 </div>
               </div>
 
-              {/* Studio & Source */}
-              <div className="flex flex-wrap items-center gap-4 mb-6 text-sm">
-                {anime.studios && anime.studios.length > 0 && (
-                  <div className="flex items-center gap-1.5 text-[#9090a8]">
-                    <Building2 size={14} />
-                    <span>{anime.studios.map(s => s.name).join(', ')}</span>
-                  </div>
-                )}
-                <div className="flex items-center gap-1.5 text-[#9090a8]">
-                  <Clock size={14} />
-                  <span>{anime.duration}</span>
+              {/* Details grid */}
+              <div className="grid grid-cols-2 gap-y-4 gap-x-6 mb-8 text-sm border-t border-b border-white/5 py-6">
+                <div className="flex justify-between">
+                  <span className="text-[#5a5a72]">Type</span>
+                  <span className="font-semibold text-white">{anime.type || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#5a5a72]">Status</span>
+                  <span className="font-semibold text-white">{anime.status || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#5a5a72]">Aired</span>
+                  <span className="font-semibold text-white">{anime.aired?.string || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#5a5a72]">Studio</span>
+                  <span className="font-semibold text-white">
+                    {anime.studios?.map((s) => s.name).join(', ') || 'N/A'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Tags */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                <div className="px-2 py-0.5 rounded-md bg-[#ff6b35]/10 text-[#ff6b35] text-xs font-medium border border-[#ff6b35]/20">
+                  {anime.rating}
                 </div>
                 <div className="px-2 py-0.5 rounded-md bg-[#00f3ff]/10 text-[#00f3ff] text-xs font-medium border border-[#00f3ff]/20">
                   {anime.source}
                 </div>
-                <div className="px-2 py-0.5 rounded-md bg-[#ff6b35]/10 text-[#ff6b35] text-xs font-medium border border-[#ff6b35]/20">
-                  {anime.type}
-                </div>
-              </div>
-
-              {/* Genres */}
-              <div className="flex flex-wrap gap-2 mb-6">
-                {anime.genres && anime.genres.map((genre) => (
-                  <span
-                    key={genre.mal_id}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium border ${getGenreColor(genre.name)}`}
-                  >
-                    {genre.name}
-                  </span>
-                ))}
               </div>
 
               {/* Synopsis */}
@@ -245,7 +244,7 @@ export function AnimeDetail() {
           </div>
 
           {/* Related Anime */}
-          {related.length > 0 && (
+          {uniqueRelated.length > 0 && (
             <motion.section
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -263,7 +262,7 @@ export function AnimeDetail() {
                 </Link>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {related.map((a, i) => (
+                {uniqueRelated.map((a, i) => (
                   <AnimeCard key={a.mal_id} anime={a} index={i} />
                 ))}
               </div>
@@ -274,5 +273,3 @@ export function AnimeDetail() {
     </div>
   );
 }
-
-export default AnimeDetail;

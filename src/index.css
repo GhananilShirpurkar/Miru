@@ -149,3 +149,95 @@ body {
   background: rgba(255, 107, 53, 0.3);
   color: #f0f0f5;
 }
+
+/* Card fade-up animation */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  opacity: 0;
+  animation: fadeUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Page fade-in transition */
+.page-fade {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1), transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-fade.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Ken Burns effect for Hero section background */
+@keyframes kenBurns {
+  0% {
+    transform: scale(1.0);
+  }
+  100% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-ken-burns {
+  animation: kenBurns 8s ease-in-out infinite alternate;
+}
+
+/* Search input transition & focus state */
+.search-input {
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: var(--color-accent-orange) !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15) !important;
+  outline: none;
+}
+
+/* Genre filter pills */
+.genre-pill {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.genre-pill-selected {
+  transform: scale(1.05);
+  background-color: var(--color-accent-orange) !important;
+  border-color: var(--color-accent-orange) !important;
+  color: #ffffff !important;
+}
+
+/* Active navigation link underline */
+.nav-link {
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--color-accent-orange);
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-link-active::after {
+  width: 100%;
+}
+
+/* Navbar glassmorphism scroll transition */
+.navbar-glass {
+  transition: background-color 0.2s ease, backdrop-filter 0.2s ease, border-color 0.2s ease;
+}
+

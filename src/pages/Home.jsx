@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, Flame, Clock, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { getTopAnime, getCurrentSeasonalAnime } from '../lib/api';
 import HeroSection from '../components/HeroSection';
 import AnimeCard from '../components/AnimeCard';
@@ -14,9 +13,11 @@ export function Home() {
   const [featured, setFeatured] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     document.title = 'MIRU — Home';
+    setVisible(true);
   }, []);
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export function Home() {
 
   if (error) {
     return (
-      <div className="pt-20">
+      <div className={`pt-20 page-fade ${visible ? 'visible' : ''}`}>
         <EmptyState
           icon={<span className="text-4xl">😢</span>}
           title="Oops!"
@@ -53,8 +54,11 @@ export function Home() {
     );
   }
 
+  const uniqueTrending = Array.from(new Map(trending.map(a => [a.mal_id, a])).entries()).map(([, v]) => v);
+  const uniqueSeasonal = Array.from(new Map(seasonal.map(a => [a.mal_id, a])).entries()).map(([, v]) => v);
+
   return (
-    <div className="min-h-screen">
+    <div className={`min-h-screen page-fade ${visible ? 'visible' : ''}`}>
       {/* Hero Section */}
       {featured && !loading && <HeroSection anime={featured} />}
       {loading && (
@@ -87,9 +91,9 @@ export function Home() {
               <SkeletonCard key={i} index={i} />
             ))}
           </div>
-        ) : trending.length > 0 ? (
+        ) : uniqueTrending.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {trending.map((anime, i) => (
+            {uniqueTrending.map((anime, i) => (
               <AnimeCard key={anime.mal_id} anime={anime} rank={i + 1} index={i} />
             ))}
           </div>
@@ -128,9 +132,9 @@ export function Home() {
               <SkeletonCard key={i} index={i} />
             ))}
           </div>
-        ) : seasonal.length > 0 ? (
+        ) : uniqueSeasonal.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {seasonal.map((anime, i) => (
+            {uniqueSeasonal.map((anime, i) => (
               <AnimeCard key={anime.mal_id} anime={anime} index={i} />
             ))}
           </div>
@@ -144,12 +148,9 @@ export function Home() {
       </section>
 
       {/* Stats Banner */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
+      <section
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-fade-up"
+        style={{ animationDelay: '800ms', animationFillMode: 'forwards' }}
       >
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#13131a] to-[#1a1a24] border border-white/5 p-8 md:p-12">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b35]/5 rounded-full blur-3xl" />
@@ -173,7 +174,7 @@ export function Home() {
             </Link>
           </div>
         </div>
-      </motion.section>
+      </section>
     </div>
   );
 }

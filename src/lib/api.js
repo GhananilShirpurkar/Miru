@@ -133,17 +133,17 @@ export const GENRE_COLORS = {
   'Adventure': 'bg-amber-500/20 text-amber-400 border-amber-500/30',
   'Comedy': 'bg-green-500/20 text-green-400 border-green-500/30',
   'Drama': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  'Fantasy': 'bg-[#7c3aed]/20 text-[#a78bfa] border-[#7c3aed]/30',
+  'Fantasy': 'bg-[#00f3ff]/20 text-[#00f3ff] border-[#00f3ff]/30',
   'Horror': 'bg-red-500/20 text-red-400 border-red-500/30',
-  'Mystery': 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30',
+  'Mystery': 'bg-slate-500/20 text-slate-400 border-slate-500/30',
   'Romance': 'bg-pink-500/20 text-pink-400 border-pink-500/30',
   'Sci-Fi': 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
   'Slice of Life': 'bg-teal-500/20 text-teal-400 border-teal-500/30',
   'Sports': 'bg-lime-500/20 text-lime-400 border-lime-500/30',
-  'Supernatural': 'bg-[#7c3aed]/20 text-[#a78bfa] border-[#7c3aed]/30',
+  'Supernatural': 'bg-[#00f3ff]/20 text-[#00f3ff] border-[#00f3ff]/30',
   'Thriller': 'bg-rose-500/20 text-rose-400 border-rose-500/30',
 };
 
 export function getGenreColor(genreName) {
-  return GENRE_COLORS[genreName] || 'bg-purple-500/20 text-purple-400 border-purple-500/30';
+  return GENRE_COLORS[genreName] || 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30';
 }
