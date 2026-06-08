@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #0a0a0f;
+  --color-bg-surface: #13131a;
+  --color-bg-surface-2: #1a1a24;
+  --color-bg-surface-3: #16161f;
+  --color-accent-orange: #ff6b35;
+  --color-accent-purple: #7c3aed;
+  --color-accent-cyan: #00f3ff;
+  --color-accent-gold: #fbbf24;
+  --color-text-primary: #f0f0f5;
+  --color-text-secondary: #9090a8;
+  --color-text-muted: #5a5a72;
+  --font-display: 'Bangers', cursive;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2a3a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff6b35;
+}
+
+/* Halftone pattern */
+.halftone {
+  background-image: radial-gradient(circle, #ff6b35 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+
+.halftone-purple {
+  background-image: radial-gradient(circle, #7c3aed 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+
+.halftone-cyan {
+  background-image: radial-gradient(circle, #00f3ff 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+
+/* Manga speed lines */
+.speed-lines {
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 107, 53, 0.05) 2px,
+    rgba(255, 107, 53, 0.05) 4px
+  );
+}
+
+/* Shimmer animation for skeletons */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #1a1a24 25%, #2a2a3a 50%, #1a1a24 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Glow effects */
+.glow-orange {
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+}
+
+/* Card hover glow */
+.card-glow:hover {
+  box-shadow: 0 0 30px rgba(255, 107, 53, 0.2), 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Angular clip path for manga style */
+.clip-manga {
+  clip-path: polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%);
+}
+
+/* Text gradient */
+.text-gradient-orange {
+  background: linear-gradient(135deg, #ff6b35, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-purple {
+  background: linear-gradient(135deg, #7c3aed, #ff6b35);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-cyan {
+  background: linear-gradient(135deg, #00f3ff, #ff6b35);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Star rating */
+.star-filled {
+  color: #fbbf24;
+}
+
+.star-empty {
+  color: #3a3a4a;
+}
+
+/* Selection */
+::selection {
+  background: rgba(255, 107, 53, 0.3);
+  color: #f0f0f5;
+}
