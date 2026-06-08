@@ -51,9 +51,52 @@ export async function getAnimeById(id) {
   return fetchWithDelay(`${BASE_URL}/anime/${id}/full`);
 }
 
-export async function searchAnime(query, page = 1, limit = 25) {
-  const encoded = encodeURIComponent(query);
-  return fetchWithDelay(`${BASE_URL}/anime?q=${encoded}&page=${page}&limit=${limit}&order_by=popularity&sort=asc`);
+export async function searchAnime(query, page = 1, limit = 25, options = {}) {
+  const params = new URLSearchParams();
+  if (query) {
+    params.append('q', query);
+  }
+  params.append('page', page);
+  params.append('limit', limit);
+
+  if (options.genre && GENRE_MAP[options.genre]) {
+    params.append('genres', GENRE_MAP[options.genre]);
+  }
+
+  if (options.type && options.type !== 'all') {
+    params.append('type', options.type.toLowerCase());
+  }
+
+  if (options.status && options.status !== 'all') {
+    params.append('status', options.status.toLowerCase());
+  }
+
+  if (options.min_score && options.min_score !== 'any') {
+    const scoreVal = parseInt(options.min_score);
+    if (!isNaN(scoreVal)) {
+      params.append('min_score', scoreVal);
+    }
+  }
+
+  if (options.order_by) {
+    const orderBy = options.order_by.toLowerCase();
+    if (orderBy === 'score') {
+      params.append('order_by', 'score');
+      params.append('sort', 'desc');
+    } else if (orderBy === 'popularity') {
+      params.append('order_by', 'popularity');
+      params.append('sort', 'asc');
+    } else if (orderBy === 'newest') {
+      params.append('order_by', 'start_date');
+      params.append('sort', 'desc');
+    }
+  } else {
+    // Default sort
+    params.append('order_by', 'popularity');
+    params.append('sort', 'asc');
+  }
+
+  return fetchWithDelay(`${BASE_URL}/anime?${params.toString()}`);
 }
 
 export async function getAnimeByGenre(genreId, page = 1, limit = 25) {
