@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home as HomeIcon, Search as SearchIcon, Calendar, Heart, Menu, X } from 'lucide-react';
-import { useFavorites } from '../hooks/useFavorites';
+import { Home as HomeIcon, Search as SearchIcon, Calendar, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function Navbar() {
   const location = useLocation();
-  const { favorites } = useFavorites();
-  const favCount = favorites.length;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -21,7 +18,6 @@ export function Navbar() {
     { path: '/', label: 'Home', icon: HomeIcon },
     { path: '/search', label: 'Search', icon: SearchIcon },
     { path: '/seasonal', label: 'Seasonal', icon: Calendar },
-    { path: '/favorites', label: 'Favorites', icon: Heart },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -61,11 +57,6 @@ export function Navbar() {
                 >
                   <Icon size={16} />
                   <span>{item.label}</span>
-                  {item.path === '/favorites' && favCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-[#ff6b35] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
-                      {favCount}
-                    </span>
-                  )}
                   {active && (
                     <motion.div
                       layoutId="nav-underline"
@@ -127,11 +118,6 @@ export function Navbar() {
                   >
                     <Icon size={18} />
                     <span>{item.label}</span>
-                    {item.path === '/favorites' && favCount > 0 && (
-                      <span className="ml-auto bg-[#ff6b35] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                        {favCount}
-                      </span>
-                    )}
                   </Link>
                 );
               })}

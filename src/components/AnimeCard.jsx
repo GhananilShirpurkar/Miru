@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Star, Play } from 'lucide-react';
+import { Star, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useFavorites } from '../hooks/useFavorites';
 
 const getGenreColor = (name) => {
   if (!name) return 'border-white/10 text-white/60';
@@ -15,21 +14,9 @@ const getGenreColor = (name) => {
 };
 
 export function AnimeCard({ anime, rank, index = 0 }) {
-  const { isFavorite, addFavorite, removeFavorite } = useFavorites();
   const [imgLoaded, setImgLoaded] = useState(false);
 
   if (!anime) return null;
-  const isFav = isFavorite(anime.mal_id);
-
-  const handleFav = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (isFav) {
-      removeFavorite(anime.mal_id);
-    } else {
-      addFavorite(anime);
-    }
-  };
 
   const poster = anime.images?.webp?.large_image_url || anime.images?.jpg?.large_image_url || '';
   const displayTitle = anime.title_english || anime.title;
@@ -72,17 +59,7 @@ export function AnimeCard({ anime, rank, index = 0 }) {
               </div>
             )}
 
-            {/* Favorite Button */}
-            <button
-              onClick={handleFav}
-              className="absolute top-3 right-3 p-2 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 hover:bg-[#ff6b35]/20 hover:border-[#ff6b35]/50 transition-all duration-200"
-              aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
-            >
-              <Heart
-                size={16}
-                className={isFav ? 'fill-[#ff6b35] text-[#ff6b35]' : 'text-white/70'}
-              />
-            </button>
+
 
             {/* Play Button on hover */}
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">

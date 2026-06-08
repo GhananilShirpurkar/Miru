@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Heart, Star, Play, Users, Calendar, Clock, Building2, ArrowLeft, ChevronRight } from 'lucide-react';
+import { Star, Play, Users, Calendar, Clock, Building2, ArrowLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getAnimeById, getTopAnime, getGenreColor } from '../lib/api';
-import { toggleFavorite, isFavorite } from '../lib/store';
 import ScoreDisplay from '../components/ScoreDisplay';
 import AnimeCard from '../components/AnimeCard';
 import EmptyState from '../components/EmptyState';
@@ -14,7 +13,6 @@ export function AnimeDetail() {
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [fav, setFav] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
   useEffect(() => {
@@ -25,7 +23,6 @@ export function AnimeDetail() {
         setImgLoaded(false);
         const res = await getAnimeById(parseInt(id, 10));
         setAnime(res.data);
-        setFav(isFavorite(res.data.mal_id));
 
         // Load some related anime (top anime as fallback)
         const relatedRes = await getTopAnime(1, 8);
@@ -40,13 +37,6 @@ export function AnimeDetail() {
     loadAnime();
     window.scrollTo(0, 0);
   }, [id]);
-
-  const handleFav = () => {
-    if (!anime) return;
-    const newFav = toggleFavorite(anime);
-    setFav(newFav);
-    window.dispatchEvent(new Event('storage'));
-  };
 
   if (loading) {
     return (
@@ -139,20 +129,7 @@ export function AnimeDetail() {
                 />
               </div>
 
-              {/* Quick Actions */}
-              <div className="mt-4 flex gap-3">
-                <button
-                  onClick={handleFav}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                    fav
-                      ? 'bg-[#ff6b35]/20 border border-[#ff6b35]/40 text-[#ff6b35]'
-                      : 'bg-white/5 border border-white/10 text-[#f0f0f5] hover:bg-white/10'
-                  }`}
-                >
-                  <Heart size={18} className={fav ? 'fill-[#ff6b35]' : ''} />
-                  {fav ? 'Favorited' : 'Add to Favorites'}
-                </button>
-              </div>
+
             </motion.div>
 
             {/* Info */}

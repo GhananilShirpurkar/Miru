@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, BarChart3, Trophy, Users, Star, Heart } from 'lucide-react';
+import { ArrowLeft, BarChart3, Trophy, Users, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import {
   BarChart,
@@ -15,13 +15,11 @@ import {
   Cell,
   Legend,
 } from 'recharts';
-import { getFavorites } from '../lib/store';
 import { getTopAnime } from '../lib/api';
 
 const CHART_COLORS = ['#ff6b35', '#00f3ff', '#fbbf24', '#10b981', '#ef4444', '#3b82f6', '#ec4899', '#06b6d4', '#84cc16', '#f59e0b'];
 
 export function Analytics() {
-  const [favorites, setFavorites] = useState([]);
   const [topAnime, setTopAnime] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -33,11 +31,6 @@ export function Analytics() {
     const loadData = async () => {
       try {
         setLoading(true);
-        // Favorites are already full anime objects in our store
-        const storedFavs = getFavorites();
-        const favList = storedFavs.filter(item => typeof item === 'object' && item !== null);
-        setFavorites(favList);
-
         const topRes = await getTopAnime(1, 10);
         setTopAnime(topRes.data);
       } catch (err) {
@@ -51,7 +44,7 @@ export function Analytics() {
 
   const genreDistribution = useMemo(() => {
     const counts = {};
-    favorites.forEach(anime => {
+    topAnime.forEach(anime => {
       if (anime.genres) {
         anime.genres.forEach(g => {
           counts[g.name] = (counts[g.name] || 0) + 1;
@@ -62,7 +55,7 @@ export function Analytics() {
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 8);
-  }, [favorites]);
+  }, [topAnime]);
 
   const topByScore = useMemo(() => {
     return [...topAnime]
@@ -87,11 +80,11 @@ export function Analytics() {
       .slice(0, 10);
   }, [topAnime]);
 
-  const avgScore = favorites.length > 0
-    ? (favorites.reduce((sum, a) => sum + (a.score || 0), 0) / favorites.length).toFixed(2)
+  const avgScore = topAnime.length > 0
+    ? (topAnime.reduce((sum, a) => sum + (a.score || 0), 0) / topAnime.length).toFixed(2)
     : '0.00';
 
-  const totalEpisodes = favorites.reduce((sum, a) => sum + (a.episodes || 0), 0);
+  const totalEpisodes = topAnime.reduce((sum, a) => sum + (a.episodes || 0), 0);
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -139,7 +132,7 @@ export function Analytics() {
             </div>
             <div>
               <h1 className="font-display text-3xl md:text-4xl text-white tracking-wide uppercase">Analytics</h1>
-              <p className="text-xs text-[#5a5a72]">Your anime statistics & insights</p>
+              <p className="text-xs text-[#5a5a72]">Global anime statistics & insights</p>
             </div>
           </div>
         </motion.div>
@@ -162,11 +155,11 @@ export function Analytics() {
               >
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 rounded-lg bg-[#ff6b35]/10">
-                    <Heart size={16} className="text-[#ff6b35]" />
+                    <Trophy size={16} className="text-[#ff6b35]" />
                   </div>
-                  <span className="text-xs text-[#9090a8] uppercase tracking-wider font-medium font-display">Favorites</span>
+                  <span className="text-xs text-[#9090a8] uppercase tracking-wider font-medium font-display">Top Rated</span>
                 </div>
-                <p className="text-3xl font-bold text-white">{favorites.length}</p>
+                <p className="text-3xl font-bold text-white">{topAnime.length}</p>
               </motion.div>
 
               <motion.div
@@ -262,7 +255,7 @@ export function Analytics() {
                 <BarChart3 size={16} className="text-[#ff6b35]" />
                 <h3 className="font-display text-lg text-white tracking-wide uppercase">Genre Distribution</h3>
               </div>
-              {favorites.length > 0 && genreDistribution.length > 0 ? (
+              {genreDistribution.length > 0 ? (
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -293,7 +286,7 @@ export function Analytics() {
                 </div>
               ) : (
                 <div className="h-40 flex items-center justify-center">
-                  <p className="text-sm text-[#5a5a72]">Add favorites to see your genre distribution</p>
+                  <p className="text-sm text-[#5a5a72]">No genre statistics available</p>
                 </div>
               )}
             </motion.div>

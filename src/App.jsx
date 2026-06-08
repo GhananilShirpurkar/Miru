@@ -4,7 +4,6 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import AnimeDetail from './pages/AnimeDetail';
 import Search from './pages/Search';
-import Favorites from './pages/Favorites';
 import Analytics from './pages/Analytics';
 import Seasonal from './pages/Seasonal';
 
@@ -17,7 +16,6 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/anime/:id" element={<AnimeDetail />} />
           <Route path="/search" element={<Search />} />
-          <Route path="/favorites" element={<Favorites />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/seasonal" element={<Seasonal />} />
         </Routes>
