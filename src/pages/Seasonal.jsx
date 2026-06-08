@@ -13,7 +13,7 @@ export function Seasonal() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    document.title = 'MIRU — Seasonal Anime';
+    document.title = 'ANITRACK — Seasonal Anime';
   }, []);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export function Seasonal() {
   else if (month >= 8 && month <= 10) season = 'Fall';
 
   return (
-    <div className="min-h-screen pt-4 pb-12">
+    <div className="min-h-screen pt-20 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div

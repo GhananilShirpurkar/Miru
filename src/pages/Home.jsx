@@ -16,7 +16,7 @@ export function Home() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    document.title = 'MIRU — Home';
+    document.title = 'ANITRACK — Home';
   }, []);
 
   useEffect(() => {

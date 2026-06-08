@@ -104,7 +104,7 @@ export function AnimeDetail() {
         <div className="absolute inset-0 bg-[#0a0a0f]" />
       </div>
 
-      <div className="relative z-10 pt-4 pb-12">
+      <div className="relative z-10 pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back Button */}
           <motion.div

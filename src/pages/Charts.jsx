@@ -26,7 +26,7 @@ export function Charts() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = 'MIRU — Analytics & Charts';
+    document.title = 'ANITRACK — Analytics & Charts';
   }, []);
 
   useEffect(() => {
@@ -118,7 +118,7 @@ export function Charts() {
   };
 
   return (
-    <div className="min-h-screen pt-4 pb-12">
+    <div className="min-h-screen pt-20 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div

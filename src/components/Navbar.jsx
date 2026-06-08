@@ -38,10 +38,10 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <span className="font-display text-2xl tracking-wider text-[#ff6b35] group-hover:scale-105 transition-transform uppercase">
-              MIRU
+            <span className="font-display text-2xl tracking-wider text-[#ff6b35] group-hover:scale-105 transition-transform uppercase italic">
+              ANITRACK
             </span>
-            <div className="w-2 h-2 rounded-full bg-[#00f3ff] animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-[#7c3aed] animate-pulse" />
           </Link>
 
           {/* Desktop Nav */}
