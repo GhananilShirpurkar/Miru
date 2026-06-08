@@ -1,27 +1,46 @@
+import { getCached, setCached } from '../utils/cache';
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.jikan.moe/v4';
 
 async function fetchWithDelay(url, retries = 1) {
+  // Check cache first
+  const cachedData = getCached(url);
+  if (cachedData) {
+    return cachedData;
+  }
+
   // Jikan API has rate limiting, add small delay between requests
   await new Promise(resolve => setTimeout(resolve, 350));
-  try {
-    const response = await fetch(url);
-    if (response.status === 429 && retries > 0) {
-      console.warn(`Jikan API 429 rate limit hit. Retrying in 1.5s... URL: ${url}`);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      return fetchWithDelay(url, retries - 1);
+
+  const performFetch = async (currentRetries) => {
+    try {
+      const response = await fetch(url);
+      if (response.status === 429) {
+        if (currentRetries > 0) {
+          console.warn(`Jikan API 429 rate limit hit. Retrying in 1s... URL: ${url}`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          return await performFetch(currentRetries - 1);
+        } else {
+          throw new Error("Rate limit hit — please wait a moment");
+        }
+      }
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      if (currentRetries > 0 && error.message !== "Rate limit hit — please wait a moment") {
+        console.warn(`Fetch error. Retrying in 1s... Error: ${error.message}`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return await performFetch(currentRetries - 1);
+      }
+      throw error;
     }
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
-    }
-    return await response.json();
-  } catch (error) {
-    if (retries > 0) {
-      console.warn(`Fetch error. Retrying in 1.5s... Error: ${error.message}`);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      return fetchWithDelay(url, retries - 1);
-    }
-    throw error;
-  }
+  };
+
+  const fetchPromise = performFetch(retries);
+  setCached(url, fetchPromise);
+  return fetchPromise;
 }
 
 export async function getTopAnime(page = 1, limit = 25) {

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { getCached, setCached } from '../utils/cache';
 
 // Simple global subscriber system to trigger the rate-limit Toast in the layout
 let toastListeners = [];
@@ -28,6 +29,34 @@ export function useAnime(url) {
       setError(null);
       return;
     }
+
+    // 1. Check cache first
+    const cachedData = getCached(url);
+    if (cachedData) {
+      setLoading(true);
+      setError(null);
+      fetchCount.current += 1;
+      const currentFetch = fetchCount.current;
+      
+      try {
+        const resolvedData = await cachedData; // This handles both data or active Promise
+        if (currentFetch === fetchCount.current) {
+          // Keep structure consistent with Jikan structure
+          setData(resolvedData.data || resolvedData);
+          setError(null);
+        }
+      } catch (err) {
+        if (currentFetch === fetchCount.current) {
+          setError(err.message || 'Something went wrong');
+          setData(null);
+        }
+      } finally {
+        if (currentFetch === fetchCount.current) {
+          setLoading(false);
+        }
+      }
+      return;
+    }
     
     setLoading(true);
     setError(null);
@@ -46,7 +75,7 @@ export function useAnime(url) {
           } else {
             // Trigger the rate limit toast
             trigger429Toast();
-            throw new Error("Slow down — too many requests");
+            throw new Error("Rate limit hit — please wait a moment");
           }
         }
 
@@ -55,26 +84,34 @@ export function useAnime(url) {
         }
 
         const json = await response.json();
-        
-        if (currentFetch === fetchCount.current) {
-          setData(json.data || null);
-          setError(null);
-        }
+        // Return full JSON structure as Jikan functions expect wrapper
+        return json;
       } catch (err) {
-        if (err.name === 'AbortError') return;
-        
-        if (currentFetch === fetchCount.current) {
-          setError(err.message || 'Something went wrong');
-          setData(null);
-        }
-      } finally {
-        if (currentFetch === fetchCount.current) {
-          setLoading(false);
-        }
+        throw err;
       }
     };
 
-    await performFetch();
+    // Construct the promise and store in cache immediately for request deduplication
+    const fetchPromise = performFetch();
+    setCached(url, fetchPromise);
+
+    try {
+      const result = await fetchPromise;
+      if (currentFetch === fetchCount.current) {
+        setData(result.data || result);
+        setError(null);
+      }
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+      if (currentFetch === fetchCount.current) {
+        setError(err.message || 'Something went wrong');
+        setData(null);
+      }
+    } finally {
+      if (currentFetch === fetchCount.current) {
+        setLoading(false);
+      }
+    }
   }, [url]);
 
   useEffect(() => {

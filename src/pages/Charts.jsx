@@ -26,7 +26,7 @@ export function Charts() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = 'ANITRACK — Analytics & Charts';
+    document.title = 'MIRU — Analytics & Charts';
   }, []);
 
   useEffect(() => {

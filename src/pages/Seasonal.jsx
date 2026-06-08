@@ -13,7 +13,7 @@ export function Seasonal() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    document.title = 'ANITRACK — Seasonal Anime';
+    document.title = 'MIRU — Seasonal Anime';
   }, []);
 
   useEffect(() => {

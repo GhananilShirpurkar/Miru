@@ -52,7 +52,7 @@ export function Search() {
   }, [query, selectedGenre]);
 
   useEffect(() => {
-    document.title = 'ANITRACK — Search Anime';
+    document.title = 'MIRU — Search Anime';
   }, []);
 
   useEffect(() => {
