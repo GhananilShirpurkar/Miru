@@ -49,9 +49,11 @@ export function HeroSection({ anime, items = [] }) {
   const handleNext = () => setCurrentIndex((prev) => (prev + 1) % animeList.length);
   const handlePrev = () => setCurrentIndex((prev) => (prev - 1 + animeList.length) % animeList.length);
 
+  const isLongTitle = displayTitle.length > 30;
+
   return (
     <div 
-      className="relative w-full min-h-[580px] md:min-h-[640px] bg-[#09090b] border-b border-[#27272a] overflow-hidden group/hero"
+      className="relative w-full min-h-[580px] md:min-h-[620px] bg-[#09090b] border-b border-[#27272a] overflow-hidden group/hero"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -62,7 +64,7 @@ export function HeroSection({ anime, items = [] }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute inset-0"
+          className="relative min-h-[580px] md:min-h-[620px] flex items-center"
         >
           {/* Ambient Blurred Backdrop Glow (Removes Pixelation) */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -70,12 +72,13 @@ export function HeroSection({ anime, items = [] }) {
               src={poster}
               alt=""
               aria-hidden="true"
-              className="w-full h-full object-cover filter blur-3xl opacity-20 scale-125 brightness-75 contrast-125"
+              className="w-full h-full object-cover filter blur-2xl md:blur-3xl opacity-35 md:opacity-20 scale-125 brightness-90 contrast-125"
             />
             {/* Ink Gradients */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#09090b] via-[#09090b]/90 to-[#09090b]/70" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#09090b] via-[#09090b]/85 to-[#09090b]/60" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-[#09090b]/80" />
           </div>
+
 
           {/* Halftone & Manga Speedline Textures */}
           <div className="absolute inset-0 halftone-red pointer-events-none opacity-15" />
@@ -87,15 +90,40 @@ export function HeroSection({ anime, items = [] }) {
           </div>
 
           {/* Content & Crisp Poster Container */}
-          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 min-h-[580px] md:min-h-[640px] flex items-center justify-between gap-8">
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-12 w-full flex items-center justify-between gap-8">
             {/* Left Content Column */}
-            <div className="max-w-2xl space-y-4">
-              {/* Editorial Header Badges */}
+            <div className="max-w-2xl space-y-3.5 flex-1 min-w-0">
+              
+              {/* Mobile-Only Anime Poster Showcase */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4 }}
+                className="md:hidden flex items-center gap-4 mb-2"
+              >
+                <div className="relative w-24 sm:w-28 aspect-[2/3] bg-[#121216] border-2 border-[#ff2e4d] overflow-hidden shrink-0 shadow-2xl shadow-[#ff2e4d]/30">
+                  <img src={poster} alt={displayTitle} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                </div>
+                <div className="space-y-1">
+                  <span className="inline-block px-2.5 py-0.5 bg-[#ff2e4d] text-black font-mono font-black text-[10px] uppercase tracking-widest">
+                    MUST WATCH #{currentIndex + 1}
+                  </span>
+                  {currentAnime.score && (
+                    <div className="flex items-center gap-1 font-mono text-xs font-bold text-[#fbbf24]">
+                      <Star size={12} className="fill-[#fbbf24]" />
+                      <span>{currentAnime.score.toFixed(2)} SCORE</span>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Desktop Editorial Header Badges */}
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="flex flex-wrap items-center gap-3 font-mono text-xs uppercase"
+                className="hidden md:flex flex-wrap items-center gap-2.5 font-mono text-xs uppercase"
               >
                 <span className="flex items-center gap-2 px-3 py-1 bg-[#ff2e4d] text-black font-black tracking-widest">
                   <Flame size={14} className="fill-black" />
@@ -121,10 +149,14 @@ export function HeroSection({ anime, items = [] }) {
                 initial={{ opacity: 0, y: 25 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="font-display text-4xl sm:text-6xl md:text-7xl font-black text-white leading-none tracking-tighter uppercase drop-shadow-2xl"
+                className={`font-display font-black text-white leading-tight tracking-tighter uppercase drop-shadow-2xl line-clamp-2 ${
+                  isLongTitle ? 'text-2xl sm:text-4xl md:text-5xl' : 'text-3xl sm:text-5xl md:text-6xl'
+                }`}
+                title={displayTitle}
               >
                 {displayTitle}
               </motion.h1>
+
 
               {/* Japanese Title Subhead */}
               {currentAnime.title_japanese && (
@@ -132,7 +164,7 @@ export function HeroSection({ anime, items = [] }) {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className="font-jp text-sm sm:text-base text-[#a1a1aa] font-bold tracking-widest"
+                  className="font-jp text-xs sm:text-sm text-[#a1a1aa] font-bold tracking-widest truncate"
                 >
                   {currentAnime.title_japanese}
                 </motion.p>
@@ -143,18 +175,18 @@ export function HeroSection({ anime, items = [] }) {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="flex flex-wrap items-center gap-2 font-mono text-xs text-[#a1a1aa]"
+                className="flex flex-wrap items-center gap-2 font-mono text-[11px] text-[#a1a1aa]"
               >
                 {currentAnime.genres?.slice(0, 4).map((g) => (
                   <span
                     key={g.mal_id || g.name}
-                    className="px-2.5 py-1 bg-[#121216] border border-[#27272a] text-[#a1a1aa] uppercase tracking-wider"
+                    className="px-2.5 py-0.5 bg-[#121216] border border-[#27272a] text-[#a1a1aa] uppercase tracking-wider"
                   >
                     {g.name}
                   </span>
                 ))}
                 {currentAnime.episodes && (
-                  <span className="px-2.5 py-1 bg-[#121216] border border-[#27272a] text-white">
+                  <span className="px-2.5 py-0.5 bg-[#121216] border border-[#27272a] text-white font-bold">
                     {currentAnime.episodes} EPS
                   </span>
                 )}
@@ -165,7 +197,7 @@ export function HeroSection({ anime, items = [] }) {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
-                className="text-xs sm:text-sm text-[#a1a1aa] leading-relaxed line-clamp-3 max-w-xl font-body"
+                className="text-xs sm:text-sm text-[#a1a1aa] leading-relaxed line-clamp-2 max-w-xl font-body"
               >
                 {currentAnime.synopsis || 'No description available for this anime entry.'}
               </motion.p>
@@ -175,11 +207,11 @@ export function HeroSection({ anime, items = [] }) {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
-                className="flex flex-wrap items-center gap-4 pt-2"
+                className="flex flex-wrap items-center gap-3 pt-2"
               >
                 <Link
                   to={`/anime/${currentAnime.mal_id}`}
-                  className="px-7 py-3.5 bg-[#ff2e4d] hover:bg-white text-black font-mono font-bold text-xs uppercase tracking-widest transition-all duration-300 flex items-center gap-2 shadow-lg shadow-[#ff2e4d]/20"
+                  className="px-6 py-3 bg-[#ff2e4d] hover:bg-white text-black font-mono font-bold text-xs uppercase tracking-widest transition-all duration-300 flex items-center gap-2 shadow-lg shadow-[#ff2e4d]/20"
                 >
                   <Info size={16} />
                   EXPLORE ENTRY
@@ -188,7 +220,7 @@ export function HeroSection({ anime, items = [] }) {
                 {trailerUrl && (
                   <button
                     onClick={() => setShowTrailerModal(true)}
-                    className="px-7 py-3.5 bg-[#121216] hover:bg-[#191920] border border-[#27272a] hover:border-[#ff2e4d] text-white font-mono font-bold text-xs uppercase tracking-widest transition-all duration-300 flex items-center gap-2"
+                    className="px-6 py-3 bg-[#121216] hover:bg-[#191920] border border-[#27272a] hover:border-[#ff2e4d] text-white font-mono font-bold text-xs uppercase tracking-widest transition-all duration-300 flex items-center gap-2"
                   >
                     <Play size={16} className="text-[#ff2e4d]" />
                     TRAILER
@@ -196,6 +228,7 @@ export function HeroSection({ anime, items = [] }) {
                 )}
               </motion.div>
             </div>
+
 
             {/* Right Crisp Framed Poster Showcase */}
             <motion.div

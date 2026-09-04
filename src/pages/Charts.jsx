@@ -214,7 +214,7 @@ export function Charts() {
                   <h3 className="font-display text-lg text-white tracking-wide uppercase">Top 10 by Score</h3>
                 </div>
                 <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <BarChart data={topByScore} layout="vertical" margin={{ left: 10, right: 20, top: 5, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#1a1a24" horizontal={false} />
                       <XAxis type="number" domain={[0, 10]} stroke="#5a5a72" fontSize={11} tickLine={false} axisLine={false} />
@@ -238,7 +238,7 @@ export function Charts() {
                   <h3 className="font-display text-lg text-white tracking-wide uppercase">Top 10 by Popularity</h3>
                 </div>
                 <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <BarChart data={topByPopularity} layout="vertical" margin={{ left: 10, right: 20, top: 5, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#1a1a24" horizontal={false} />
                       <XAxis type="number" stroke="#5a5a72" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => `${(v / 1000000).toFixed(1)}M`} />
@@ -264,7 +264,7 @@ export function Charts() {
               </div>
               {favorites.length > 0 && genreDistribution.length > 0 ? (
                 <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <PieChart>
                       <Pie
                         data={genreDistribution}

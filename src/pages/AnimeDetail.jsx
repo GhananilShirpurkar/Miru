@@ -6,6 +6,8 @@ import { getAnimeById, getTopAnime } from '../lib/api';
 import { useWatchlist } from '../hooks/useWatchlist';
 import AnimeCard from '../components/AnimeCard';
 import EmptyState from '../components/EmptyState';
+import VaultCategoryPicker from '../components/VaultCategoryPicker';
+
 
 export default function AnimeDetail() {
   const { id } = useParams();
@@ -198,26 +200,18 @@ export default function AnimeDetail() {
 
               {/* Action Buttons: Watchlist & Compare */}
               <div className="flex flex-wrap items-center gap-3 pt-2 font-mono text-xs font-bold">
-                <button
-                  onClick={() => updateStatus(anime, status ? null : 'plan')}
-                  className={`px-4 py-2.5 border flex items-center gap-2 transition-all uppercase tracking-wider ${
-                    status
-                      ? 'bg-[#ff2e4d] border-[#ff2e4d] text-black font-black'
-                      : 'bg-[#121216] border-[#27272a] hover:border-[#ff2e4d] text-white'
-                  }`}
-                >
-                  <Bookmark size={15} className={status ? 'fill-black' : ''} />
-                  <span>{status ? `VAULTED (${status.toUpperCase()})` : 'ADD TO WATCHLIST'}</span>
-                </button>
+                <VaultCategoryPicker anime={anime} />
+
 
                 <Link
                   to={`/compare?anime1=${anime.mal_id}`}
-                  className="px-4 py-2.5 bg-[#121216] border border-[#27272a] hover:border-white text-white flex items-center gap-2 transition-all uppercase tracking-wider"
+                  className="px-4 py-3 bg-[#121216] border border-[#27272a] hover:border-white text-white flex items-center gap-2 transition-all uppercase tracking-wider"
                 >
                   <Swords size={15} className="text-[#ff2e4d]" />
                   <span>COMPARE IN ARENA</span>
                 </Link>
               </div>
+
             </div>
 
 
@@ -226,8 +220,25 @@ export default function AnimeDetail() {
               <div className="p-4 bg-[#121216] border border-[#27272a] flex flex-col">
                 <span className="text-[10px] text-[#71717a] uppercase tracking-widest font-bold">SCORE</span>
                 <div className="flex items-center gap-2 mt-1">
-                  <Star size={18} className="text-[#fbbf24] fill-[#fbbf24]" />
-                  <span className="text-2xl font-bold text-white">
+                  <Star
+                    size={18}
+                    className={
+                      (anime.score || 0) >= 8.5
+                        ? 'text-[#fbbf24] fill-[#fbbf24]'
+                        : (anime.score || 0) >= 7.5
+                        ? 'text-[#ff2e4d] fill-[#ff2e4d]'
+                        : 'text-[#3b82f6] fill-[#3b82f6]'
+                    }
+                  />
+                  <span
+                    className={`text-2xl font-bold ${
+                      (anime.score || 0) >= 8.5
+                        ? 'text-[#fbbf24]'
+                        : (anime.score || 0) >= 7.5
+                        ? 'text-[#ff2e4d]'
+                        : 'text-[#3b82f6]'
+                    }`}
+                  >
                     {anime.score ? anime.score.toFixed(2) : 'N/A'}
                   </span>
                 </div>
@@ -235,6 +246,7 @@ export default function AnimeDetail() {
                   <span className="text-[10px] text-[#52525b] mt-1">{anime.scored_by.toLocaleString()} REVIEWS</span>
                 )}
               </div>
+
 
               <div className="p-4 bg-[#121216] border border-[#27272a] flex flex-col">
                 <span className="text-[10px] text-[#71717a] uppercase tracking-widest font-bold">POPULARITY</span>

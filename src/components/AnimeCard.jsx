@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, ArrowUpRight } from 'lucide-react';
+import { Star, ArrowUpRight, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { openQuickDrawer } from '../hooks/useQuickDrawer';
 
 export default function AnimeCard({ anime, rank, index = 0 }) {
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -11,6 +12,12 @@ export default function AnimeCard({ anime, rank, index = 0 }) {
   const poster = anime.images?.webp?.large_image_url || anime.images?.jpg?.large_image_url || '';
   const displayTitle = anime.title_english || anime.title;
   const score = anime.score || 0;
+
+  const handleQuickView = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openQuickDrawer(anime);
+  };
 
   return (
     <motion.div
@@ -45,17 +52,36 @@ export default function AnimeCard({ anime, rank, index = 0 }) {
             )}
 
             {/* Score Pill */}
-            <div className="absolute top-2 right-2 px-2 py-0.5 bg-[#09090b]/85 border border-[#27272a] backdrop-blur-sm flex items-center gap-1">
-              <Star size={11} className="text-[#fbbf24] fill-[#fbbf24]" />
+            <div className="absolute top-2 right-2 px-2 py-0.5 bg-[#09090b]/90 border border-[#27272a] backdrop-blur-sm flex items-center gap-1">
+              <Star
+                size={11}
+                className={
+                  score >= 8.5
+                    ? 'text-[#fbbf24] fill-[#fbbf24]'
+                    : score >= 7.5
+                    ? 'text-[#ff2e4d] fill-[#ff2e4d]'
+                    : 'text-[#3b82f6] fill-[#3b82f6]'
+                }
+              />
               <span className="font-mono text-[11px] font-bold text-white">
                 {score > 0 ? score.toFixed(2) : 'N/A'}
               </span>
             </div>
 
-            {/* Hover Action Badge */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
-              <div className="w-12 h-12 bg-[#ff2e4d] text-black flex items-center justify-center font-mono font-bold shadow-lg shadow-[#ff2e4d]/40 group-hover:scale-110 transition-transform">
-                <ArrowUpRight size={22} className="stroke-[3]" />
+
+            {/* Hover Action Badge Overlay */}
+            <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 backdrop-blur-[2px]">
+              <button
+                onClick={handleQuickView}
+                className="px-3 py-2 bg-[#121216] border border-[#27272a] hover:border-[#ff2e4d] text-white hover:text-[#ff2e4d] font-mono text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-lg"
+                title="Quick Telemetry Preview"
+              >
+                <Eye size={14} className="text-[#ff2e4d]" />
+                <span>QUICK VIEW</span>
+              </button>
+
+              <div className="p-2 bg-[#ff2e4d] text-black flex items-center justify-center font-mono font-bold shadow-lg shadow-[#ff2e4d]/40 group-hover:scale-105 transition-transform">
+                <ArrowUpRight size={18} className="stroke-[3]" />
               </div>
             </div>
 
@@ -67,11 +93,23 @@ export default function AnimeCard({ anime, rank, index = 0 }) {
             </div>
           </div>
 
+
           {/* Card Info Footer */}
           <div className="p-3 bg-[#121216] border-t border-[#27272a]/60">
-            <h3 className="font-display font-bold text-sm text-white line-clamp-1 leading-snug tracking-tight group-hover:text-[#ff2e4d] transition-colors">
-              {displayTitle}
-            </h3>
+            <div className="flex items-center justify-between gap-1">
+              <h3 className="font-display font-bold text-sm text-white line-clamp-1 leading-snug tracking-tight group-hover:text-[#ff2e4d] transition-colors flex-1">
+                {displayTitle}
+              </h3>
+              
+              <button
+                onClick={handleQuickView}
+                className="md:hidden p-1.5 bg-[#191920] border border-[#27272a] hover:border-[#ff2e4d] text-[#ff2e4d] rounded-sm shrink-0"
+                aria-label="Quick Telemetry View"
+                title="Quick View"
+              >
+                <Eye size={12} />
+              </button>
+            </div>
             
             <div className="flex items-center justify-between mt-2 font-mono text-[10px] text-[#a1a1aa]">
               <span className="truncate max-w-[120px]">
@@ -82,6 +120,7 @@ export default function AnimeCard({ anime, rank, index = 0 }) {
               </span>
             </div>
           </div>
+
         </div>
       </Link>
     </motion.div>

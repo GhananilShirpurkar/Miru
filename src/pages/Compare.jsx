@@ -215,9 +215,11 @@ export default function Compare() {
             {/* Versus Cards Showcase Header */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
               {/* VS Central Emblem Badge */}
-              <div className="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-14 h-14 bg-[#09090b] border-2 border-[#ff2e4d] items-center justify-center font-display font-black text-xl text-white shadow-2xl shadow-[#ff2e4d]/40">
+              <div className="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-14 h-14 bg-[#09090b] border-2 border-[#ff2e4d] items-center justify-center font-display font-black text-xl text-white shadow-2xl shadow-[#ff2e4d]/40 vs-slash-glow">
                 VS
               </div>
+
+
 
               {/* Combatant 1 Showcase */}
               <div className={`relative bg-[#121216] border-2 p-6 space-y-4 ${
