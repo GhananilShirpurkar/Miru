@@ -6,6 +6,8 @@ import AnimeDetail from './pages/AnimeDetail';
 import Search from './pages/Search';
 import Analytics from './pages/Analytics';
 import Seasonal from './pages/Seasonal';
+import Compare from './pages/Compare';
+import Watchlist from './pages/Watchlist';
 
 function App() {
   return (
@@ -16,8 +18,10 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/anime/:id" element={<AnimeDetail />} />
           <Route path="/search" element={<Search />} />
-          <Route path="/analytics" element={<Analytics />} />
           <Route path="/seasonal" element={<Seasonal />} />
+          <Route path="/compare" element={<Compare />} />
+          <Route path="/vault" element={<Watchlist />} />
+          <Route path="/analytics" element={<Analytics />} />
         </Routes>
       </div>
     </BrowserRouter>
@@ -25,3 +29,8 @@ function App() {
 }
 
 export default App;
+
+
+
+
+

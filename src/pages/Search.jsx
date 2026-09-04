@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search as SearchIcon, X, Filter } from 'lucide-react';
+import { Search as SearchIcon, X, Filter, Sparkles, Command } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { searchAnime, GENRE_MAP } from '../lib/api';
+import { searchAnime } from '../lib/api';
 import AnimeCard from '../components/AnimeCard';
 import SkeletonCard from '../components/SkeletonCard';
 import EmptyState from '../components/EmptyState';
+import CustomSelect from '../components/CustomSelect';
 
 const GENRES = ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror', 'Mystery', 'Romance', 'Sci-Fi', 'Slice of Life', 'Sports', 'Supernatural', 'Thriller'];
 const TYPES = ['All', 'TV', 'Movie', 'OVA', 'ONA', 'Special'];
@@ -63,14 +64,14 @@ export function Search() {
 
       setResults(res.data || []);
     } catch (err) {
-      setError(err.message || 'Failed to search anime. Please try again.');
+      setError(err.message || 'Failed to search anime catalogue. Please try again.');
     } finally {
       setLoading(false);
     }
   }, [query, selectedGenre, type, status, score, orderBy]);
 
   useEffect(() => {
-    document.title = 'MIRU — Search Anime';
+    document.title = 'MIRU — Catalogue Search';
   }, []);
 
   useEffect(() => {
@@ -90,7 +91,6 @@ export function Search() {
     setSearchParams(params);
   }, [query, selectedGenre, type, status, score, orderBy, setSearchParams]);
 
-  // Trigger search on filter changes if query is not empty or genre is selected
   useEffect(() => {
     if (query.trim() || selectedGenre) {
       performSearch();
@@ -129,258 +129,181 @@ export function Search() {
   const uniqueResults = Array.from(new Map(results.map(a => [a.mal_id, a])).entries()).map(([, v]) => v);
 
   return (
-    <div className="min-h-screen pt-20 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#09090b] text-white pt-24 pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="font-display text-3xl md:text-4xl text-white tracking-wide mb-2 uppercase font-bold">
-            Discover Anime
-          </h1>
-          <p className="text-sm text-[#9090a8]">Search through thousands of anime titles</p>
-        </motion.div>
+        <div className="border-b border-[#27272a] pb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-[#ff2e4d] text-black font-jp font-black text-sm flex items-center justify-center">
+              検索
+            </div>
+            <div>
+              <div className="font-mono text-xs text-[#ff2e4d] tracking-widest uppercase font-bold">
+                GLOBAL ARCHIVE SEARCH
+              </div>
+              <h1 className="font-display text-4xl sm:text-5xl font-black uppercase tracking-tighter text-white">
+                DISCOVER CATALOGUE
+              </h1>
+            </div>
+          </div>
 
-        {/* Search Bar */}
-        <motion.form
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          onSubmit={handleSearch}
-          className="relative mb-6"
-        >
-          <div className="relative">
-            <SearchIcon size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5a5a72]" />
+          <div className="hidden sm:flex items-center gap-2 font-mono text-xs text-[#71717a]">
+            <span>QUICK SHORTCUT: PRESS</span>
+            <kbd className="px-2 py-1 bg-[#121216] border border-[#27272a] text-[#ff2e4d] font-bold">
+              /
+            </kbd>
+          </div>
+        </div>
+
+        {/* Search Input Bar */}
+        <form onSubmit={handleSearch} className="relative">
+          <div className="relative flex items-center bg-[#121216] border-2 border-[#27272a] focus-within:border-[#ff2e4d] transition-colors shadow-lg">
+            <SearchIcon size={20} className="ml-5 text-[#71717a] shrink-0" />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search anime by title..."
-              className="w-full pl-12 pr-12 py-4 bg-[#13131a] border border-white/10 rounded-xl text-white placeholder-[#5a5a72] focus:outline-none focus:border-[#ff6b35]/50 focus:ring-1 focus:ring-[#ff6b35]/20 transition-all text-sm"
+              placeholder="TYPE TITLE, CHARACTER, OR STUDIO NAME..."
+              className="w-full px-4 py-4 bg-transparent text-white font-mono text-sm placeholder-[#52525b] border-none outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:shadow-none uppercase tracking-wider"
+              autoFocus
             />
             {query && (
               <button
                 type="button"
                 onClick={() => { setQuery(''); setResults([]); setHasSearched(false); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5a5a72] hover:text-white transition-colors"
+                className="mr-5 text-[#71717a] hover:text-white p-1 shrink-0 focus:outline-none focus-visible:outline-none"
               >
                 <X size={18} />
               </button>
             )}
           </div>
-        </motion.form>
+        </form>
 
-        {/* Advanced Filters */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="mb-8 bg-[#13131a]/40 border border-white/5 rounded-2xl p-5 md:p-6"
-        >
-          <div className="flex flex-col gap-5">
-            {/* Genre Filter Pills */}
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Filter size={14} className="text-[#9090a8]" />
-                <span className="text-xs text-[#9090a8] font-medium uppercase tracking-wider">Filter by Genre</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {GENRES.map((genre) => (
-                  <button
-                    key={genre}
-                    type="button"
-                    onClick={() => toggleGenre(genre)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 ${
-                      selectedGenre === genre
-                        ? 'bg-[#ff6b35]/20 text-[#ff6b35] border-[#ff6b35]/40'
-                        : 'bg-[#13131a] text-[#9090a8] border-white/10 hover:border-white/20 hover:text-[#f0f0f5]'
-                    }`}
-                  >
-                    {genre}
-                  </button>
-                ))}
-              </div>
+        {/* Filter Controls Panel */}
+        <div className="bg-[#121216] border border-[#27272a] p-6 space-y-6">
+          {/* Genre Chips */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 font-mono text-xs text-[#71717a] uppercase font-bold tracking-wider">
+              <Filter size={14} className="text-[#ff2e4d]" />
+              <span>GENRE TAXONOMY</span>
             </div>
-
-            {/* Advanced Selector Dropdowns */}
-            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/15 scrollbar-track-transparent">
-              {/* Type Filter */}
-              <div className="flex-shrink-0 flex flex-col gap-1.5 min-w-[120px]">
-                <span className="text-[10px] text-[#5a5a72] uppercase tracking-wider font-semibold">Format</span>
-                <select
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                  className={`w-full rounded-xl text-xs text-white px-3 py-2.5 focus:outline-none transition-all cursor-pointer border ${
-                    type !== 'all'
-                      ? 'border-[#ff6b35]/40 bg-[#ff6b35]/10 text-[#ff6b35]'
-                      : 'bg-[#13131a] border-white/10 hover:border-white/20 focus:border-[#ff6b35]/50'
-                  }`}
-                >
-                  {TYPES.map(t => (
-                    <option key={t} value={t.toLowerCase()} className="bg-[#13131a] text-white">{t}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Status Filter */}
-              <div className="flex-shrink-0 flex flex-col gap-1.5 min-w-[120px]">
-                <span className="text-[10px] text-[#5a5a72] uppercase tracking-wider font-semibold">Status</span>
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  className={`w-full rounded-xl text-xs text-white px-3 py-2.5 focus:outline-none transition-all cursor-pointer border ${
-                    status !== 'all'
-                      ? 'border-[#ff6b35]/40 bg-[#ff6b35]/10 text-[#ff6b35]'
-                      : 'bg-[#13131a] border-white/10 hover:border-white/20 focus:border-[#ff6b35]/50'
-                  }`}
-                >
-                  {STATUSES.map(s => (
-                    <option key={s} value={s.toLowerCase()} className="bg-[#13131a] text-white">{s}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Score Filter */}
-              <div className="flex-shrink-0 flex flex-col gap-1.5 min-w-[120px]">
-                <span className="text-[10px] text-[#5a5a72] uppercase tracking-wider font-semibold">Min Score</span>
-                <select
-                  value={score}
-                  onChange={(e) => setScore(e.target.value)}
-                  className={`w-full rounded-xl text-xs text-white px-3 py-2.5 focus:outline-none transition-all cursor-pointer border ${
-                    score !== 'any'
-                      ? 'border-[#ff6b35]/40 bg-[#ff6b35]/10 text-[#ff6b35]'
-                      : 'bg-[#13131a] border-white/10 hover:border-white/20 focus:border-[#ff6b35]/50'
-                  }`}
-                >
-                  {SCORES.map(s => (
-                    <option key={s} value={s.toLowerCase()} className="bg-[#13131a] text-white">{s}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Sort By */}
-              <div className="flex-shrink-0 flex flex-col gap-1.5 min-w-[130px]">
-                <span className="text-[10px] text-[#5a5a72] uppercase tracking-wider font-semibold">Sort By</span>
-                <select
-                  value={orderBy}
-                  onChange={(e) => setOrderBy(e.target.value)}
-                  className={`w-full rounded-xl text-xs text-white px-3 py-2.5 focus:outline-none transition-all cursor-pointer border ${
-                    orderBy !== 'relevance'
-                      ? 'border-[#ff6b35]/40 bg-[#ff6b35]/10 text-[#ff6b35]'
-                      : 'bg-[#13131a] border-white/10 hover:border-white/20 focus:border-[#ff6b35]/50'
-                  }`}
-                >
-                  {ORDER_BY_OPTIONS.map(o => (
-                    <option key={o} value={o.toLowerCase()} className="bg-[#13131a] text-white">{o}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Clear All Button */}
-            {showClearButton && (
-              <div className="flex justify-end pt-2 border-t border-white/5">
+            <div className="flex flex-wrap gap-2">
+              {GENRES.map((genre) => (
                 <button
+                  key={genre}
                   type="button"
-                  onClick={clearAll}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-white/5 text-[#9090a8] border border-white/10 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all duration-300 flex items-center gap-1.5"
+                  onClick={() => toggleGenre(genre)}
+                  className={`px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-wider border transition-all ${
+                    selectedGenre === genre
+                      ? 'bg-[#ff2e4d] text-black border-[#ff2e4d]'
+                      : 'bg-[#191920] text-[#a1a1aa] border-[#27272a] hover:border-white/20 hover:text-white'
+                  }`}
                 >
-                  <X size={14} />
-                  Clear All Filters
+                  {genre}
                 </button>
-              </div>
-            )}
+              ))}
+            </div>
           </div>
-        </motion.div>
 
-        {/* Results */}
+          {/* Custom Dropdown Selectors Matrix */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono text-xs pt-4 border-t border-[#27272a]">
+            <CustomSelect
+              label="FORMAT"
+              value={type}
+              options={TYPES}
+              onChange={setType}
+            />
+
+            <CustomSelect
+              label="STATUS"
+              value={status}
+              options={STATUSES}
+              onChange={setStatus}
+            />
+
+            <CustomSelect
+              label="MIN SCORE"
+              value={score}
+              options={SCORES}
+              onChange={setScore}
+            />
+
+            <CustomSelect
+              label="SORT BY"
+              value={orderBy}
+              options={ORDER_BY_OPTIONS}
+              onChange={setOrderBy}
+            />
+          </div>
+
+          {showClearButton && (
+            <div className="flex justify-end pt-3 border-t border-[#27272a]">
+              <button
+                type="button"
+                onClick={clearAll}
+                className="px-4 py-2 bg-[#ff2e4d]/10 border border-[#ff2e4d]/40 text-[#ff2e4d] font-mono font-bold text-xs uppercase hover:bg-[#ff2e4d] hover:text-black transition-colors flex items-center gap-1.5"
+              >
+                <X size={14} />
+                RESET ALL FILTERS
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Results Container */}
         <AnimatePresence mode="wait">
           {loading ? (
-            <motion.div
-              key="loading"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
-            >
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
               {Array.from({ length: 12 }).map((_, i) => (
                 <SkeletonCard key={i} index={i} />
               ))}
-            </motion.div>
+            </div>
           ) : error ? (
-            <motion.div
-              key="error"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <EmptyState
-                icon={<span className="text-4xl">😢</span>}
-                title="Search Error"
-                description={error}
-              />
-            </motion.div>
+            <EmptyState
+              icon={<X size={36} className="text-[#ff2e4d]" />}
+              title="SEARCH QUERY FAILURE"
+              description={error}
+            />
           ) : hasSearched && results.length === 0 ? (
-            <motion.div
-              key="empty"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <EmptyState
-                icon={<SearchIcon size={32} className="text-[#5a5a72]" />}
-                title="No Results Found"
-                description={`We couldn't find any anime matching "${query}". Try a different search term or genre.`}
-              />
-            </motion.div>
+            <EmptyState
+              icon={<SearchIcon size={36} className="text-[#71717a]" />}
+              title="ZERO MATCHES FOUND"
+              description={`No anime entries found matching "${query}". Try adjusting your genre or status filters.`}
+            />
           ) : uniqueResults.length > 0 ? (
-            <motion.div
-              key="results"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-sm text-[#9090a8]">
-                  {uniqueResults.length} result{uniqueResults.length !== 1 ? 's' : ''} found
-                </span>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between font-mono text-xs text-[#a1a1aa] uppercase tracking-wider">
+                <span>FOUND {uniqueResults.length} MATCHING ARCHIVE ENTRIES</span>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
                 {uniqueResults.map((anime, i) => (
                   <AnimeCard key={anime.mal_id} anime={anime} index={i} />
                 ))}
               </div>
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
-              key="initial"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <div className="flex flex-col items-center justify-center py-20 px-4 max-w-xl mx-auto text-center">
-                <SearchIcon size={48} className="text-[#5a5a72] mb-6 opacity-60" />
-                <h3 className="font-display text-lg font-bold text-white mb-2 uppercase tracking-wider">
-                  Discover Anime
+            <div className="py-16 text-center space-y-6 bg-[#121216] border border-[#27272a] p-8">
+              <Sparkles size={40} className="mx-auto text-[#ff2e4d]" />
+              <div className="space-y-2">
+                <h3 className="font-display text-2xl font-black uppercase text-white tracking-tight">
+                  POPULAR CATALOGUE SEARCHES
                 </h3>
-                <p className="text-sm text-[#9090a8] mb-8">
-                  Enter a search query or select a genre above to get started, or try one of these trending searches:
+                <p className="text-xs text-[#a1a1aa] font-mono">
+                  Select a trending keyword below to query the database immediately:
                 </p>
-                <div className="flex flex-wrap justify-center gap-2 max-w-lg">
-                  {TRENDING_SUGGESTIONS.map((suggestion) => (
-                    <button
-                      key={suggestion}
-                      onClick={() => handleSuggestion(suggestion)}
-                      className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#13131a] hover:bg-[#ff6b35]/10 text-white hover:text-[#ff6b35] border border-white/5 hover:border-[#ff6b35]/30 transition-all duration-300"
-                    >
-                      {suggestion}
-                    </button>
-                  ))}
-                </div>
               </div>
-            </motion.div>
+              <div className="flex flex-wrap justify-center gap-2 max-w-xl mx-auto">
+                {TRENDING_SUGGESTIONS.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    onClick={() => handleSuggestion(suggestion)}
+                    className="px-4 py-2 bg-[#191920] border border-[#27272a] hover:border-[#ff2e4d] text-white font-mono text-xs font-bold uppercase transition-colors"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
         </AnimatePresence>
       </div>

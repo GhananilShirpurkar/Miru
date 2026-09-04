@@ -1,163 +1,305 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
-import { Play, Info, Star, TrendingUp, Calendar } from 'lucide-react';
+import { Play, Info, Star, Flame, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const getGenreColor = (name) => {
-  if (!name) return 'border-white/10 text-white/60';
-  const n = name.toLowerCase();
-  if (n === 'action' || n === 'adventure') return 'border-[#ff6b35]/30 text-[#ff6b35] bg-[#ff6b35]/5';
-  if (n === 'comedy' || n === 'slice of life') return 'border-yellow-500/30 text-yellow-500 bg-yellow-500/5';
-  if (n === 'drama' || n === 'romance') return 'border-pink-500/30 text-pink-500 bg-pink-500/5';
-  if (n === 'fantasy' || n === 'supernatural') return 'border-[#00f3ff]/30 text-[#00f3ff] bg-[#00f3ff]/5';
-  return 'border-white/10 text-white/60 bg-white/5';
-};
+export function HeroSection({ anime, items = [] }) {
+  const animeList = Array.isArray(items) && items.length > 0 ? items : anime ? [anime] : [];
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [showTrailerModal, setShowTrailerModal] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
-export function HeroSection({ anime }) {
-  const [imgLoaded, setImgLoaded] = useState(false);
+  // Auto rotate hero slides every 7 seconds
+  useEffect(() => {
+    if (animeList.length <= 1 || isPaused || showTrailerModal) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % animeList.length);
+    }, 7000);
+    return () => clearInterval(interval);
+  }, [animeList.length, isPaused, showTrailerModal]);
 
-  if (!anime) return null;
+  // Lock body scroll when modal is active & listen for Escape key
+  useEffect(() => {
+    if (showTrailerModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setShowTrailerModal(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = 'unset';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showTrailerModal]);
 
-  const poster = anime.images?.webp?.large_image_url || anime.images?.jpg?.large_image_url || '';
-  const displayTitle = anime.title_english || anime.title;
+  if (animeList.length === 0) return null;
+
+  const currentAnime = animeList[currentIndex];
+  const poster = currentAnime.images?.webp?.large_image_url || currentAnime.images?.jpg?.large_image_url || currentAnime.images?.jpg?.image_url || '';
+  const displayTitle = currentAnime.title_english || currentAnime.title;
+  const rawTrailerUrl = currentAnime.trailer?.embed_url;
+  const trailerUrl = rawTrailerUrl 
+    ? (rawTrailerUrl.includes('?') ? `${rawTrailerUrl}&autoplay=1` : `${rawTrailerUrl}?autoplay=1`)
+    : null;
+
+  const handleNext = () => setCurrentIndex((prev) => (prev + 1) % animeList.length);
+  const handlePrev = () => setCurrentIndex((prev) => (prev - 1 + animeList.length) % animeList.length);
 
   return (
-    <div className="relative w-full min-h-[500px] md:min-h-[600px] overflow-hidden rounded-2xl mb-8 border border-white/5">
-      {/* Background Image */}
-      <div className="absolute inset-0 overflow-hidden">
-        {!imgLoaded && <div className="absolute inset-0 shimmer bg-[#1a1a24]" />}
-        <img
-          src={poster}
-          alt={displayTitle}
-          className={`w-full h-full object-cover object-top transition-opacity duration-700 ${
-            imgLoaded ? 'opacity-100 animate-ken-burns' : 'opacity-0'
-          }`}
-          onLoad={() => setImgLoaded(true)}
-        />
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0f] via-[#0a0a0f]/90 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-transparent to-[#0a0a0f]/30" />
-      </div>
-
-      {/* Halftone pattern overlay */}
-      <div className="absolute inset-0 halftone opacity-[0.03] pointer-events-none" />
-
-      {/* Speed lines */}
-      <div className="absolute right-0 top-0 bottom-0 w-1/3 speed-lines pointer-events-none" />
-
-      {/* Angular accent shape */}
-      <div className="absolute -right-20 top-1/4 w-64 h-64 bg-[#ff6b35]/5 rotate-45 pointer-events-none" />
-      <div className="absolute -right-10 top-1/3 w-48 h-48 border-2 border-[#00f3ff]/10 rotate-45 pointer-events-none" />
-
-      {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-24 pb-12 flex items-end min-h-[500px] md:min-h-[600px]">
-        <div className="max-w-2xl">
-          {/* Rank Badge */}
-          <div
-            className="flex items-center gap-3 mb-4 animate-fade-up"
-            style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
-          >
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#ff6b35]/15 border border-[#ff6b35]/30">
-              <TrendingUp size={14} className="text-[#ff6b35]" />
-              <span className="text-xs font-bold text-[#ff6b35]">TRENDING NOW</span>
-            </div>
-            {anime.rank && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#00f3ff]/15 border border-[#00f3ff]/30">
-                <Star size={14} className="text-[#fbbf24] fill-[#fbbf24]" />
-                <span className="text-xs font-bold text-[#fbbf24]">Rank #{anime.rank}</span>
-              </div>
-            )}
+    <div 
+      className="relative w-full min-h-[580px] md:min-h-[640px] bg-[#09090b] border-b border-[#27272a] overflow-hidden group/hero"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentAnime.mal_id || currentIndex}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute inset-0"
+        >
+          {/* Ambient Blurred Backdrop Glow (Removes Pixelation) */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <img
+              src={poster}
+              alt=""
+              aria-hidden="true"
+              className="w-full h-full object-cover filter blur-3xl opacity-20 scale-125 brightness-75 contrast-125"
+            />
+            {/* Ink Gradients */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#09090b] via-[#09090b]/90 to-[#09090b]/70" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-[#09090b]/80" />
           </div>
 
-          {/* Title */}
-          <h1
-            className="font-display text-4xl md:text-6xl lg:text-7xl text-white leading-none tracking-wide mb-3 uppercase animate-fade-up"
-            style={{
-              textShadow: '0 4px 30px rgba(0,0,0,0.5)',
-              animationDelay: '200ms',
-              animationFillMode: 'forwards',
-            }}
-          >
-            {displayTitle}
-          </h1>
+          {/* Halftone & Manga Speedline Textures */}
+          <div className="absolute inset-0 halftone-red pointer-events-none opacity-15" />
+          <div className="absolute right-0 top-0 bottom-0 w-1/2 speed-lines pointer-events-none" />
 
-          {/* Japanese Title */}
-          {anime.title_japanese && (
-            <p
-              className="text-sm text-[#9090a8] mb-4 font-medium animate-fade-up"
-              style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}
-            >
-              {anime.title_japanese}
-            </p>
-          )}
-
-          {/* Meta Info */}
-          <div
-            className="flex flex-wrap items-center gap-4 mb-5 animate-fade-up"
-            style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}
-          >
-            <div className="flex items-center gap-1.5">
-              <Star size={16} className="text-[#fbbf24] fill-[#fbbf24]" />
-              <span className="font-bold text-white">{anime.score ? anime.score.toFixed(2) : 'N/A'}</span>
-            </div>
-            <div className="w-1 h-1 rounded-full bg-[#5a5a72]" />
-            <div className="flex items-center gap-1.5 text-sm text-[#9090a8]">
-              <Calendar size={14} />
-              <span>{anime.status}</span>
-            </div>
-            <div className="w-1 h-1 rounded-full bg-[#5a5a72]" />
-            <span className="text-sm text-[#9090a8]">{anime.episodes ? `${anime.episodes} Episodes` : 'TBA'}</span>
+          {/* Large Vertical Japanese Watermark */}
+          <div className="absolute right-12 top-16 select-none pointer-events-none opacity-5 hidden lg:block font-jp font-black text-9xl tracking-widest text-white writing-vertical-rl">
+            未来・観る
           </div>
 
-          {/* Genres */}
-          <div
-            className="flex flex-wrap gap-2 mb-6 animate-fade-up"
-            style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}
-          >
-            {anime.genres && anime.genres.slice(0, 4).map((genre) => (
-              <span
-                key={genre.mal_id}
-                className={`px-3 py-1 rounded-full text-xs font-medium border ${getGenreColor(genre.name)}`}
+          {/* Content & Crisp Poster Container */}
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 min-h-[580px] md:min-h-[640px] flex items-center justify-between gap-8">
+            {/* Left Content Column */}
+            <div className="max-w-2xl space-y-4">
+              {/* Editorial Header Badges */}
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="flex flex-wrap items-center gap-3 font-mono text-xs uppercase"
               >
-                {genre.name}
-              </span>
+                <span className="flex items-center gap-2 px-3 py-1 bg-[#ff2e4d] text-black font-black tracking-widest">
+                  <Flame size={14} className="fill-black" />
+                  MUST WATCH #0{currentIndex + 1}
+                </span>
+
+                {currentAnime.score && (
+                  <span className="flex items-center gap-1.5 px-3 py-1 bg-[#121216] border border-[#27272a] text-[#fbbf24] font-bold">
+                    <Star size={13} className="fill-[#fbbf24]" />
+                    SCORE {currentAnime.score.toFixed(2)}
+                  </span>
+                )}
+
+                {currentAnime.type && (
+                  <span className="px-3 py-1 bg-[#121216] border border-[#27272a] text-[#a1a1aa] font-semibold">
+                    {currentAnime.type}
+                  </span>
+                )}
+              </motion.div>
+
+              {/* Title */}
+              <motion.h1
+                initial={{ opacity: 0, y: 25 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="font-display text-4xl sm:text-6xl md:text-7xl font-black text-white leading-none tracking-tighter uppercase drop-shadow-2xl"
+              >
+                {displayTitle}
+              </motion.h1>
+
+              {/* Japanese Title Subhead */}
+              {currentAnime.title_japanese && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="font-jp text-sm sm:text-base text-[#a1a1aa] font-bold tracking-widest"
+                >
+                  {currentAnime.title_japanese}
+                </motion.p>
+              )}
+
+              {/* Genres & Meta Info */}
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="flex flex-wrap items-center gap-2 font-mono text-xs text-[#a1a1aa]"
+              >
+                {currentAnime.genres?.slice(0, 4).map((g) => (
+                  <span
+                    key={g.mal_id || g.name}
+                    className="px-2.5 py-1 bg-[#121216] border border-[#27272a] text-[#a1a1aa] uppercase tracking-wider"
+                  >
+                    {g.name}
+                  </span>
+                ))}
+                {currentAnime.episodes && (
+                  <span className="px-2.5 py-1 bg-[#121216] border border-[#27272a] text-white">
+                    {currentAnime.episodes} EPS
+                  </span>
+                )}
+              </motion.div>
+
+              {/* Synopsis */}
+              <motion.p
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="text-xs sm:text-sm text-[#a1a1aa] leading-relaxed line-clamp-3 max-w-xl font-body"
+              >
+                {currentAnime.synopsis || 'No description available for this anime entry.'}
+              </motion.p>
+
+              {/* Action Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                className="flex flex-wrap items-center gap-4 pt-2"
+              >
+                <Link
+                  to={`/anime/${currentAnime.mal_id}`}
+                  className="px-7 py-3.5 bg-[#ff2e4d] hover:bg-white text-black font-mono font-bold text-xs uppercase tracking-widest transition-all duration-300 flex items-center gap-2 shadow-lg shadow-[#ff2e4d]/20"
+                >
+                  <Info size={16} />
+                  EXPLORE ENTRY
+                </Link>
+
+                {trailerUrl && (
+                  <button
+                    onClick={() => setShowTrailerModal(true)}
+                    className="px-7 py-3.5 bg-[#121216] hover:bg-[#191920] border border-[#27272a] hover:border-[#ff2e4d] text-white font-mono font-bold text-xs uppercase tracking-widest transition-all duration-300 flex items-center gap-2"
+                  >
+                    <Play size={16} className="text-[#ff2e4d]" />
+                    TRAILER
+                  </button>
+                )}
+              </motion.div>
+            </div>
+
+            {/* Right Crisp Framed Poster Showcase */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, x: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="hidden md:block relative shrink-0"
+            >
+              <div className="relative w-64 lg:w-72 aspect-[2/3] bg-[#121216] border-2 border-[#ff2e4d] shadow-2xl overflow-hidden group">
+                <img
+                  src={poster}
+                  alt={displayTitle}
+                  className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
+                <div className="absolute bottom-3 left-3 right-3 font-mono text-[10px] text-[#a1a1aa] flex justify-between items-center uppercase border-t border-white/20 pt-2">
+                  <span>ENTRY #0{currentIndex + 1}</span>
+                </div>
+              </div>
+              {/* Back Accent Offset Frame */}
+              <div className="absolute -bottom-3 -right-3 w-64 lg:w-72 aspect-[2/3] border border-[#27272a] bg-[#121216]/50 -z-10 pointer-events-none" />
+            </motion.div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Slide Navigation Controls */}
+      {animeList.length > 1 && (
+        <div className="absolute right-4 sm:right-8 bottom-6 z-20 flex items-center gap-3">
+          <button
+            onClick={handlePrev}
+            className="p-3 bg-[#121216]/90 border border-[#27272a] text-[#a1a1aa] hover:text-white hover:border-[#ff2e4d] transition-colors"
+            aria-label="Previous Hero Slide"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          
+          <div className="flex gap-1.5 font-mono text-xs text-white">
+            {animeList.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentIndex(idx)}
+                className={`h-1.5 transition-all duration-300 ${
+                  idx === currentIndex ? 'w-8 bg-[#ff2e4d]' : 'w-2 bg-[#27272a] hover:bg-white/40'
+                }`}
+                aria-label={`Slide ${idx + 1}`}
+              />
             ))}
           </div>
 
-          {/* Synopsis */}
-          <p
-            className="text-sm text-[#9090a8] leading-relaxed mb-6 line-clamp-3 max-w-xl animate-fade-up"
-            style={{ animationDelay: '600ms', animationFillMode: 'forwards' }}
+          <button
+            onClick={handleNext}
+            className="p-3 bg-[#121216]/90 border border-[#27272a] text-[#a1a1aa] hover:text-white hover:border-[#ff2e4d] transition-colors"
+            aria-label="Next Hero Slide"
           >
-            {anime.synopsis || 'No synopsis available.'}
-          </p>
-
-          {/* CTAs */}
-          <div
-            className="flex flex-wrap gap-3 animate-fade-up"
-            style={{ animationDelay: '700ms', animationFillMode: 'forwards' }}
-          >
-            <Link
-              to={`/anime/${anime.mal_id}`}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#ff6b35] text-white font-semibold rounded-xl hover:bg-[#ff6b35]/90 transition-all duration-200 hover:shadow-lg hover:shadow-[#ff6b35]/25"
-            >
-              <Play size={18} fill="white" />
-              Watch Trailer
-            </Link>
-            <Link
-              to={`/anime/${anime.mal_id}`}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 text-white font-semibold rounded-xl hover:bg-white/10 transition-all duration-200"
-            >
-              <Info size={18} />
-              View Details
-            </Link>
-          </div>
+            <ChevronRight size={18} />
+          </button>
         </div>
-      </div>
+      )}
 
-      {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#0a0a0f] to-transparent pointer-events-none" />
+      {/* Trailer Overlay Modal Portal */}
+      {showTrailerModal && trailerUrl && createPortal(
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/95 backdrop-blur-lg animate-fade-in"
+          onClick={() => setShowTrailerModal(false)}
+        >
+          <div 
+            className="relative w-full max-w-5xl bg-[#09090b] border-2 border-[#ff2e4d] overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Bar */}
+            <div className="flex items-center justify-between p-4 bg-[#121216] border-b border-[#27272a]">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 bg-[#ff2e4d] rounded-full animate-ping" />
+                <span className="font-mono text-xs font-bold text-white uppercase tracking-wider">
+                  TRAILER — {displayTitle}
+                </span>
+              </div>
+              <button
+                onClick={() => setShowTrailerModal(false)}
+                className="p-1.5 text-[#a1a1aa] hover:text-white hover:bg-[#ff2e4d] hover:text-black transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            {/* Video Player */}
+            <div className="relative aspect-video bg-black">
+              <iframe
+                src={trailerUrl}
+                title={`${displayTitle} Trailer`}
+                className="w-full h-full border-0"
+                allowFullScreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
     </div>
   );
 }
 
 export default HeroSection;
+
+
