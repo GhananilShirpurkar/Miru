@@ -55,7 +55,7 @@
 
 /**
  * @template T
- * @typedef {Object} JikanResponse
+ * @typedef {Object} ApiResponse
  * @property {T} data
  * @property {Object} [pagination]
  * @property {number} pagination.last_visible_page
@@ -69,7 +69,7 @@
 
 /**
  * @template T
- * @typedef {Object} JikanListResponse
+ * @typedef {Object} ApiListResponse
  * @property {T[]} data
  * @property {Object} [pagination]
  * @property {number} pagination.last_visible_page

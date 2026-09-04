@@ -8,17 +8,18 @@ const TTL_CONFIG = {
   default: 2 * 60 * 1000        // 2 minutes
 };
 
-function getTTL(url) {
-  if (url.includes('/top/anime')) {
+function getTTL(key) {
+  // AniList cache keys are prefixed strings (e.g. "top:", "detail:", "seasonal:", "search:", "genre:")
+  if (key.startsWith('top:')) {
     return TTL_CONFIG.topAnime;
   }
-  if (url.includes('/seasons/')) {
+  if (key.startsWith('seasonal:')) {
     return TTL_CONFIG.seasonal;
   }
-  if (url.includes('/anime/') && !url.includes('?')) {
+  if (key.startsWith('detail:')) {
     return TTL_CONFIG.detail;
   }
-  if (url.includes('q=')) {
+  if (key.startsWith('search:') || key.startsWith('genre:')) {
     return TTL_CONFIG.search;
   }
   return TTL_CONFIG.default;

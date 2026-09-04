@@ -24,9 +24,15 @@ export default function AnimeDetail() {
         const res = await getAnimeById(parseInt(id, 10));
         setAnime(res.data);
 
-        // Load some related anime (top anime as fallback)
-        const relatedRes = await getTopAnime(1, 8);
-        setRelated(relatedRes.data.filter(a => a.mal_id !== res.data.mal_id).slice(0, 6));
+        // Load some related anime (top anime as fallback) independently
+        try {
+          const relatedRes = await getTopAnime(1, 8);
+          if (relatedRes?.data) {
+            setRelated(relatedRes.data.filter(a => a.mal_id !== res.data.mal_id).slice(0, 6));
+          }
+        } catch (relatedErr) {
+          console.warn('Could not load related anime recommendations:', relatedErr);
+        }
       } catch (err) {
         console.error(err);
         setError('Failed to load anime details.');

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Flame, Clock, ChevronRight } from 'lucide-react';
+import { TrendingUp, Flame, Clock, ChevronRight, RotateCcw, AlertTriangle } from 'lucide-react';
 import { getTopAnime, getCurrentSeasonalAnime } from '../lib/api';
 import HeroSection from '../components/HeroSection';
 import AnimeCard from '../components/AnimeCard';
@@ -9,10 +9,14 @@ import EmptyState from '../components/EmptyState';
 
 export function Home() {
   const [trending, setTrending] = useState([]);
+  const [trendingLoading, setTrendingLoading] = useState(true);
+  const [trendingError, setTrendingError] = useState('');
+
   const [seasonal, setSeasonal] = useState([]);
+  const [seasonalLoading, setSeasonalLoading] = useState(true);
+  const [seasonalError, setSeasonalError] = useState('');
+
   const [featured, setFeatured] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -20,39 +24,42 @@ export function Home() {
     setVisible(true);
   }, []);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const trendingRes = await getTopAnime(1, 12);
-        const seasonalRes = await getCurrentSeasonalAnime(1, 8);
-        
-        setTrending(trendingRes.data || []);
-        setSeasonal(seasonalRes.data || []);
-        if (trendingRes.data && trendingRes.data.length > 0) {
-          setFeatured(trendingRes.data[0]);
-        }
-      } catch (err) {
-        console.error(err);
-        setError('Failed to load anime data. Please try again later.');
-      } finally {
-        setLoading(false);
+  const loadTrending = useCallback(async () => {
+    try {
+      setTrendingLoading(true);
+      setTrendingError('');
+      const trendingRes = await getTopAnime(1, 12);
+      const data = trendingRes.data || [];
+      setTrending(data);
+      if (data.length > 0) {
+        setFeatured(data[0]);
       }
-    };
-    loadData();
+    } catch (err) {
+      console.error('Failed to load trending anime:', err);
+      setTrendingError(err.message || 'Failed to load trending anime.');
+    } finally {
+      setTrendingLoading(false);
+    }
   }, []);
 
-  if (error) {
-    return (
-      <div className={`pt-20 page-fade ${visible ? 'visible' : ''}`}>
-        <EmptyState
-          icon={<span className="text-4xl">😢</span>}
-          title="Oops!"
-          description={error}
-        />
-      </div>
-    );
-  }
+  const loadSeasonal = useCallback(async () => {
+    try {
+      setSeasonalLoading(true);
+      setSeasonalError('');
+      const seasonalRes = await getCurrentSeasonalAnime(1, 8);
+      setSeasonal(seasonalRes.data || []);
+    } catch (err) {
+      console.error('Failed to load seasonal anime:', err);
+      setSeasonalError(err.message || 'Failed to load seasonal anime.');
+    } finally {
+      setSeasonalLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadTrending();
+    loadSeasonal();
+  }, [loadTrending, loadSeasonal]);
 
   const uniqueTrending = Array.from(new Map(trending.map(a => [a.mal_id, a])).entries()).map(([, v]) => v);
   const uniqueSeasonal = Array.from(new Map(seasonal.map(a => [a.mal_id, a])).entries()).map(([, v]) => v);
@@ -60,8 +67,8 @@ export function Home() {
   return (
     <div className={`min-h-screen page-fade ${visible ? 'visible' : ''}`}>
       {/* Hero Section */}
-      {featured && !loading && <HeroSection anime={featured} />}
-      {loading && (
+      {featured && !trendingLoading && <HeroSection anime={featured} />}
+      {trendingLoading && (
         <div className="w-full h-[500px] md:h-[600px] shimmer" />
       )}
 
@@ -85,11 +92,27 @@ export function Home() {
           </Link>
         </div>
 
-        {loading ? (
+        {trendingLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {Array.from({ length: 12 }).map((_, i) => (
               <SkeletonCard key={i} index={i} />
             ))}
+          </div>
+        ) : trendingError ? (
+          <div className="p-6 rounded-2xl bg-[#13131a] border border-red-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="text-amber-400 shrink-0" size={24} />
+              <div>
+                <h4 className="font-semibold text-white">Could not load Trending Anime</h4>
+                <p className="text-xs text-[#9090a8]">{trendingError}</p>
+              </div>
+            </div>
+            <button
+              onClick={loadTrending}
+              className="flex items-center gap-2 px-4 py-2 bg-[#ff6b35] text-white text-sm font-semibold rounded-xl hover:bg-[#ff6b35]/90 transition-colors whitespace-nowrap"
+            >
+              <RotateCcw size={16} /> Retry Trending
+            </button>
           </div>
         ) : uniqueTrending.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -126,11 +149,27 @@ export function Home() {
           </Link>
         </div>
 
-        {loading ? (
+        {seasonalLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <SkeletonCard key={i} index={i} />
             ))}
+          </div>
+        ) : seasonalError ? (
+          <div className="p-6 rounded-2xl bg-[#13131a] border border-red-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="text-amber-400 shrink-0" size={24} />
+              <div>
+                <h4 className="font-semibold text-white">Could not load Seasonal Anime</h4>
+                <p className="text-xs text-[#9090a8]">{seasonalError}</p>
+              </div>
+            </div>
+            <button
+              onClick={loadSeasonal}
+              className="flex items-center gap-2 px-4 py-2 bg-[#00f3ff]/20 text-[#00f3ff] border border-[#00f3ff]/30 text-sm font-semibold rounded-xl hover:bg-[#00f3ff]/30 transition-colors whitespace-nowrap"
+            >
+              <RotateCcw size={16} /> Retry Seasonal
+            </button>
           </div>
         ) : uniqueSeasonal.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
